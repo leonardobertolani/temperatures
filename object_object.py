@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
-class ScambioTermicoGUI:
+class GUI:
 
     def __init__(self):
         self.T1_init = 300
@@ -156,6 +156,6 @@ class ScambioTermicoGUI:
 
 
 if __name__ == "__main__":
-    app = ScambioTermicoGUI()
+    app = GUI()
     app.update_plot()
     app.main_loop()

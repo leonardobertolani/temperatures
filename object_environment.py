@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-class RaffreddamentoGUI:
+class GUI:
 
     def __init__(self):
 
@@ -163,6 +163,6 @@ class RaffreddamentoGUI:
 
 
 if __name__ == "__main__":
-    app = RaffreddamentoGUI()
+    app = GUI()
     app.update_plot()
     app.main_loop()
