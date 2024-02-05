@@ -2,7 +2,8 @@
 
 The scripts in this repo deals with some basic thermodynamics, displaying the rate of change in temperature of objects over time. Every script deal with a different problem:
 - *object_environment.py*: this script plot the temperature / time graph of an object cooling or heating in a steady temperature environment.
-- *object_object.py*: this script plot the temperature / time graph of two object transfering heat to each other. The heat transfer is only between the two object, no environment is considered.
+- *object_object.py*: this script plot the temperature / time graph of two object at different temperatures transfering heat to each other. The heat transfer is only between the two object, no environment is considered.
+- *object_object_environment.py* : this script plot the temperature / time graph of two object at different temperatures transfering heat to each other, surrounded by a steady temperature environment. 
 
 
 ### object_environment.py
@@ -42,3 +43,32 @@ $T(t) = (T_{init} - T_{env})e^{-\frac{1}{R \cdot m \cdot c}t} + T_{env}$
  This function goes to $T_{env}$ when time goes to infinity, and equals $T_{init}$ at the starting point $T(0)$. It seems to work fine! 
 
  The *object_environment.py* python script uses this analytical result to plot the $T(t)$ graph of a general object, wrapping it into a Tkinter GUI that let you play with the properties of the system.
+
+
+
+
+### object_object_environment.py
+
+Let's consider two objects of mass $m1$ and $m2$, temperature $T^1_{init}$ $T^2_{init}$ and thermal coefficient $c_1$ and $c_2$, surrounded by an environment with a steady temperature $T_{env}$. The thermal resistance between the
+two objects is $R_{12}$, between the first object and the environment is $R_{1-env}$ and between the second object and the environment is $R_{2-env}$.
+
+From here, the analytical solution could be very difficult to calculate, since the system is too complicated. Anyway, we can opt for a recursive solution! Let us describe the heat exchanged by the first object in a small period of time $dt$ as:
+
+$Q_{total} = m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t))$
+
+Again, we can think of the total heat transfered as the total heat power released in the $dt$ interval, so:
+
+$Q_{total} = \dot{Q}_{total} \cdot dt = m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t))$
+
+Now, the heat power that is being exchanged during the $dt$ interval is the sum of the heat power transfered from oject 1 through di environment and the heat power transfered from object 1 through object 2. 
+Thus, by using the electro-thermal analogy we can conclude that:
+
+$-(\frac{T_1(t) - T_2(t)}{R_{12}} + \frac{T_1(t) - T_{env}}{R_{1-env}}) \cdot dt = m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t))$
+
+The - sign is fundamental to maintain the equivalence (for example, suppose $T_1(t) > T_2(t) > T_{env}$: in that case $T_1(t) - T_2(t) > 0$ and $T_1(t) - T_{env} > 0$ but $T_1(t + dt) - T_1(t) < 0$ and so the - is fundamental so balance the equation).
+
+
+
+
+
+
