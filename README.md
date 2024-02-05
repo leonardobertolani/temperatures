@@ -1,4 +1,4 @@
-## Temperatures
+# Temperatures
 
 The scripts in this repo deal with some basic thermodynamics, displaying the rate of change in temperature of objects over time. Every script deal with a different problem:
 - *object_environment.py*: this script plot the temperature / time graph of an object cooling or heating in a steady temperature environment.
@@ -8,7 +8,7 @@ The scripts in this repo deal with some basic thermodynamics, displaying the rat
 
 
 
-### object_environment.py
+## object_environment.py
 
 
 Let's consider an object of mass $m$, temperature $T_{init}$ and thermal coefficient $c$ surrounded by an environment with a steady temperature $T_{env}$ and with a thermal resistance $R$ between them. 
@@ -50,7 +50,7 @@ The *object_environment.py* python script uses this analytical result to plot th
 
 
 
-### object_object_environment.py
+## object_object_environment.py
 
 Let's consider two objects of mass $m1$ and $m2$, temperature $T^1_{init}$ $T^2_{init}$ and thermal coefficient $c_1$ and $c_2$, surrounded by an environment with a steady temperature $T_{env}$. The thermal resistance between the
 two objects is $R_{12}$, between the first object and the environment is $R_{1-env}$ and between the second object and the environment is $R_{2-env}$.
