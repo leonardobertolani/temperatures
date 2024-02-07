@@ -11,7 +11,7 @@ The scripts in this repo deal with some basic thermodynamics, displaying the rat
 ## object_environment.py
 
 
-Let's consider an object of mass $m$, temperature $T_{init}$ and thermal coefficient $c$ surrounded by an environment with a steady temperature $T_{env}$ and with a thermal resistance $R$ between them. 
+Let's consider an object of mass $m$, temperature $T_{init}$ and specific heat $c$ surrounded by an environment with a steady temperature $T_{env}$ and with a thermal resistance $R$ between them. 
 From this, it is possible to analytically find the temperature function $T(t)$ of the object, that is, find the rate of change in temperature over time. Actually, it's exponential.
 
 To find it, let us consider a system with the properties we provided. It doesn't matter if the object is cooler or hotter than the environment, physics works both ways :)
@@ -52,7 +52,7 @@ The *object_environment.py* python script uses this analytical result to plot th
 
 ## object_object_environment.py
 
-Let's consider two objects of mass $m1$ and $m2$, temperature $T^1_{init}$ $T^2_{init}$ and thermal coefficient $c_1$ and $c_2$, surrounded by an environment with a steady temperature $T_{env}$. The thermal resistance between the
+Let's consider two objects of mass $m1$ and $m2$, temperature $T^1_{init}$ $T^2_{init}$ and specific heat $c_1$ and $c_2$, surrounded by an environment with a steady temperature $T_{env}$. The thermal resistance between the
 two objects is $R_{12}$, between the first object and the environment is $R_{1-env}$ and between the second object and the environment is $R_{2-env}$.
 
 From here, an analytical solution for the temperature diagram could be very difficult to calculate, since the system is too complicated. Anyway, we can opt for an iterative solution! Let us describe the total heat exchanged by the first object in a small period of time $dt$ as:
