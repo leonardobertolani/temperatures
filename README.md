@@ -1,9 +1,11 @@
 # Temperatures
 
 The scripts in this repo deal with some basic thermodynamics, displaying the rate of change in temperature of objects over time. Every script deal with a different problem:
-- *object_environment.py*: this script plot the temperature / time graph of an object cooling or heating in a steady temperature environment.
-- *object_object.py*: this script plot the temperature / time graph of two object at different temperatures transfering heat to each other. The heat transfer is only between the two object, no environment is considered.
-- *object_object_environment.py* : this script plot the temperature / time graph of two object at different temperatures transfering heat to each other, surrounded by a steady temperature environment. 
+- `object_environment.py`: this script plot the temperature / time graph of an object cooling or heating in a steady temperature environment.
+- `object_object.py`: this script plot the temperature / time graph of two object at different temperatures transfering heat to each other. The heat transfer is only between the two object, no environment is considered.
+- `object_object_environment.py`: this script plot the temperature / time graph of two object at different temperatures transfering heat to each other, surrounded by a steady temperature environment.
+
+Also, in the end I present a more general way to compute this problem.
 
 
 
@@ -15,6 +17,10 @@ Let's consider an object of mass $m$, temperature $T_{init}$ and specific heat $
 From this, it is possible to analytically find the temperature function $T(t)$ of the object, that is, find the rate of change in temperature over time. Actually, it's exponential.
 
 To find it, let us consider a system with the properties we provided. It doesn't matter if the object is cooler or hotter than the environment, physics works both ways :)
+
+<img width="596" alt="image" src="https://github.com/leonardobertolani/temperatures/assets/102794282/df7a909f-f8de-4c36-b26b-96dd548bf111">
+
+
 
 Given that, let us quantify the total heat transfered by the object or to the object in a very small period of time $dt$:
 
@@ -45,17 +51,29 @@ $$T(t) = (T_{init} - T_{env})e^{-\frac{1}{R \cdot m \cdot c}t} + T_{env}$$
 
 This function goes to $T_{env}$ when time goes to infinity, and equals $T_{init}$ at the starting point $T(0)$. It seems to work fine! 
 
-The *object_environment.py* python script uses this analytical result to plot the $T(t)$ graph of a general object, wrapping it into a Tkinter GUI that let you play with the properties of the system.
+The `object_environment.py` python script uses this analytical result to plot the $T(t)$ graph of a general object, wrapping it into a Tkinter GUI that let you play with the properties of the system.
+
+
+
+## object_object.py
+
+<img width="596" alt="image" src="https://github.com/leonardobertolani/temperatures/assets/102794282/bd9a5a47-122d-4e2f-9ba3-1ee9ee8c923a">
+
+
+
 
 
 
 
 ## object_object_environment.py
 
-Let's consider two objects of mass $m1$ and $m2$, temperature $T^1_{init}$ $T^2_{init}$ and specific heat $c_1$ and $c_2$, surrounded by an environment with a steady temperature $T_{env}$. The thermal resistance between the
-two objects is $R_{12}$, between the first object and the environment is $R_{1-env}$ and between the second object and the environment is $R_{2-env}$.
+Let's consider two objects of mass $m1$ and $m2$, temperature $T^1_{init}$ $T^2_{init}$ and specific heat $c_1$ and $c_2$, surrounded by an environment with a steady temperature $T_{env}$. The thermal resistance between the two objects is $R_{12}$, between the first object and the environment is $R_{1-env}$ and between the second object and the environment is $R_{2-env}$.
 
-From here, an analytical solution for the temperature diagram could be very difficult to calculate, since the system is too complicated. Anyway, we can opt for an iterative solution! Let us describe the total heat exchanged by the first object in a small period of time $dt$ as:
+<img width="593" alt="image" src="https://github.com/leonardobertolani/temperatures/assets/102794282/89ffea7a-0797-4346-a3e0-6fd5a4af990f">
+
+
+
+From here, an analytical solution for the temperature diagram of the objects could be very difficult to calculate, since the system is too complicated. Anyway, we can opt for an iterative solution! Let us describe the total heat exchanged by the first object in a small period of time $dt$ as:
 
 $$Q_{total} = m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t))$$
 
@@ -78,7 +96,28 @@ For example, after the first $dt$ interval the temperature would be:
 
 $$T_1(0 + dt) = T_1(0) - (\frac{T_1(0) - T_2(0)}{R_{12} \cdot m_1 \cdot c_1} + \frac{T_1(0) - T_{env}}{R_{1-env} \cdot m_1 \cdot c_1}) \cdot dt = T^1_{init} - (\frac{T^1_{init} - T^2_{init}}{R_{12} \cdot m_1 \cdot c_1} + \frac{T^1_{init} - T_{env}}{R_{1-env} \cdot m_1 \cdot c_1}) \cdot dt$$
 
-By iterating this formula over and over again it is possible to build the temperature graph of the object. This rule is applied in the object_object_environment.py script, and seems to work pretty well.
+By iterating this formula over and over again it is possible to build the temperature graph of the object. This rule is applied in the `object_object_environment.py` script, and seems to work pretty well.
 
 
 
+## A more general way
+As seen in the previous paragraph about the `object_object_environment.py` script, it is not always necessary to compute a differential equation to plot the graph of different objects in the system. By using the iterative approach, the only difficulty is writing the first equation correctly and then plugging it into a script that builds a graph step by step. 
+
+For example, suppose we have $N$ objects with different masses, specific heats, and temperatures, all linked together, surrounded by the same environment. The temperature equation for, let's say, object 1 would simply be:
+
+$$
+-(\frac{T_1(t) - T_2(t)}{R_{12}} + \frac{T_1(t) - T_3(t)}{R_{13}} + \ldots + \frac{T_1(t) - T_N(t)}{R_{1N}} + \frac{T_1(t) - T_{env}}{R_{1-env}}) \cdot dt = m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t))
+$$
+
+So, the temperature of object 1 at time $t + dt$ can be determined by the state of the system at time $t$ as:
+
+$$
+T_1(t + dt) = T_1(t) - (\frac{T_1(t) - T_2(t)}{R_{12} \cdot m_1 \cdot c_1} + \frac{T_1(t) - T_3(t)}{R_{13} \cdot m_1 \cdot c_1} + \ldots + \frac{T_1(t) - T_N(t)}{R_{1N} \cdot m_1 \cdot c_1} + \frac{T_1(t) - T_{env}}{R_{1-env} \cdot m_1 \cdot c_1}) \cdot dt
+$$
+
+Not every object can exchange heat with all others. For instance, object 1 may directly exchange heat with objects 2 and 4 but not with objects 3 and 5. We can represent these objects and their thermal interactions through a weighted graph, where each node symbolizes an object and each edge represents a connection between two objects, with the weight indicating thermal resistances.
+
+<img width="595" alt="image" src="https://github.com/leonardobertolani/temperatures/assets/102794282/9807af79-4f09-44a8-87e2-ac215c8cedfc">
+
+
+This concept presents a more **scalable** and **efficient** approach to the problem of finding the temperature variations over time, and represent the generalization of the previous exercises. 
