@@ -98,7 +98,7 @@ $$
   T_1(t) = - \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T_2(t) + c
 $$
 
-This final result shows that $T_1(t)$ and $T_2(t)$ are pretty much the same function, except for a coefficient and a constant term. This result is reasonable, because the heat exchanged over time is the same, so the way one temperature function increases should match the way the other temperature function decreases. The constant term $c$ can be found remembering that for time going to infinity bot functions equals $T_eq$, and so:
+This final result shows that $T_1(t)$ and $T_2(t)$ are pretty much the same function, except for a coefficient and a constant term. This result is reasonable, because the heat exchanged over time is the same, so the way one temperature function increases should match the way the other temperature function decreases. The constant term $c$ can be found remembering that for time going to infinity bot functions equals $T_{eq}$, and so:
 
 $$
   T_{eq} = - \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T_{eq} + c
@@ -113,9 +113,71 @@ $$
 $$
 
 $$
-  c = \frac{m_1 \cdot c_1 \cdot T^1_{init} + m_2 \cdot c_2 \cdot T^2_{init}}{m_1 \cdot c_1}
+  c = \frac{m_1 \cdot c_1 \cdot T^1_{init} + m_2 \cdot c_2 \cdot T^2_{init}}{m_1 \cdot c_1} = T^1_{init} + \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T^2_{init}
 $$
 
+The equation can eventually be written as:
+
+$$
+  T_1(t) = - \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T_2(t) + T^1_{init} + \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T^2_{init}
+$$
+
+Finally, let's rewrite the previous equation using the electro-thermal analogy: the amount of heat transfered in a $dt$ interval can be expressed also by the difference in temperature at time $t$ between the object and by the thermal resistence $R$. 
+
+$$
+Q_{tot} = m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t)) = - m_2 \cdot c_2 \cdot (T_2(t + dt) - T_2(t)) = - \frac{T_1(t) - T_2(t)}{R} \cdot dt
+$$
+
+Now, let's focus on the second and the fourth term
+
+$$
+m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t)) = - \frac{T_1(t) - T_2(t)}{R} \cdot dt
+$$
+
+As we seen, the functions $T_1(t)$ can be expressed in terms of the function $T_2(t)$, and vice-versa. From the previous result we can go on and write:
+
+$$
+  T_1(t) = - \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T_2(t) + c \implies 
+  T_2(t) = - \frac{m_1 \cdot c_1}{m_2 \cdot c_2} \cdot (T_1(t) - c)
+$$
+
+From here, with some algebric manipulation of the last equation we can obtain:
+
+$$
+m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t)) = - \frac{T_1(t) - T_2(t)}{R} \cdot dt
+$$
+
+$$
+m_1 \cdot c_1 \cdot \frac{dT_1(t)}{dt} = - \frac{T_1(t) - T_2(t)}{R}
+$$
+
+$$
+m_1 \cdot c_1 \cdot \frac{dT_1(t)}{dt} = - \frac{1}{R} \cdot T_1(t) - \frac{m_1 \cdot c_1}{m_2 \cdot c_2 \cdot R} \cdot T_1(t) + \frac{m_1 \cdot c_1 \cdot c}{m_2 \cdot c_2 \cdot R}
+$$
+
+$$
+m_1 \cdot c_1 \cdot \frac{dT_1(t)}{dt} = - \frac{m_1 \cdot c_1 + m_2 \cdot c_2}{m_2 \cdot c_2 \cdot R} \cdot T_1(t) + \frac{m_1 \cdot c_1 \cdot c}{m_2 \cdot c_2 \cdot R}
+$$
+
+$$
+\frac{dT_1(t)}{dt} + \frac{m_1 \cdot c_1 + m_2 \cdot c_2}{m_1 \cdot c_1 \cdot m_2 \cdot c_2 \cdot R} \cdot T_1(t) = \frac{c}{m_2 \cdot c_2 \cdot R}
+$$
+
+This is the linear differential equation that governs the $T_1(t)$ temperature curve. By solving it and indicating with $\gamma = \frac{m_1 \cdot c_1 + m_2 \cdot c_2}{m_1 \cdot c_1 \cdot m_2 \cdot c_2 \cdot R}$ we obtain the following
+
+$$
+  T_1(t) = e^{-\gamma t} (c_1 + \frac{c}{m_2 \cdot c_2 \cdot R} \cdot \frac{1}{\gamma} \cdot e^{\gamma t}) =  c_1 \cdot e^{-\gamma t} + \frac{c}{m_2 \cdot c_2 \cdot R \cdot \gamma} = c_1 \cdot e^{-\gamma t} + T_{eq}
+$$
+
+Note that the the term $\frac{c}{m_2 \cdot c_2 \cdot R \cdot \gamma}$ perfectly equals the $T_{eq}$ term that we calculate before. This is obvious: with $t$ going to infinity we expect the temperature of the system approaching $T_{eq}$, and this is what happens in the formula. The last costant $c_1$ can be found remembering that $T_1(0) = T^1_{init}$, leading to these functions:
+
+$$
+  T_1(t) = (T^1_{init} - T_{eq}) \cdot e^{-\gamma t} + T_{eq}
+$$
+
+$$
+  T_2(t) = (T^2_{init} - T_{eq}) \cdot e^{-\gamma t} + T_{eq}
+$$
 
 
 
