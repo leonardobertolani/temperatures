@@ -57,9 +57,64 @@ The `object_environment.py` python script uses this analytical result to plot th
 
 ## object_object.py
 
+Let's consider two objects of mass $m1$ and $m2$, temperature $T^1_{init}$ $T^2_{init}$ and specific heat $c_1$ and $c_2$, surrounded by an adiabatic environment (no environment transfer of heat happens) and with a thermal resistence $R$ between the two objects. We would like to discover the rate of change in temperature of the two objects.
+
+
 <img width="596" alt="image" src="https://github.com/leonardobertolani/temperatures/assets/102794282/bd9a5a47-122d-4e2f-9ba3-1ee9ee8c923a">
 
+First of all, it can be usefull to find the equivalence temperature $T_{eq}$, that is the temperature that the two objects will reach once all the heat will have been transfered. From this point of view, the equivalence temperature can be found by comparing the heat exchanges of the two objects:
 
+$$
+  m_1 \cdot c_1 \cdot (T^1_{init} -  T_{eq}) = m_2 \cdot c_2 \cdot (T^2_{init} -  T_{eq})
+$$
+
+From here we have
+
+$$
+  T_{eq} = \frac{m_1 \cdot c_1 \cdot T^1_{init} + m_2 \cdot c_2 \cdot T^2_{init}}{m_1 \cdot c_1 + m_2 \cdot c_2}
+$$
+
+As we can see, the equivalence temperature seems to be the weighted average of the initial objects temperatures, with the weights equal to the product $m \cdot c$.
+
+We can generalize this situation for every interval of time: for a system at time $t$, after a small period of time $dt$ the amount of heat that the two objects will have been transfered equals to
+
+$$
+  Q_{tot} = m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t)) = - m_2 \cdot c_2 \cdot (T_2(t + dt) - T_2(t))
+$$
+
+with the - sign always balancing the equation (in fact, when one temperature increases, the other decreases). From here we divide both terms by $dt$ and we obtain the following:
+
+$$
+  m_1 \cdot c_1 \cdot \frac{dT_1(t)}{dt} = - m_2 \cdot c_2 \cdot \frac{dT_2(t)}{dt}
+$$
+
+$$
+  \frac{dT_1(t)}{dt} = - \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot \frac{dT_2(t)}{dt}
+$$
+
+Now we integrate both sides of the equation and we obtain:
+
+$$
+  T_1(t) = - \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T_2(t) + c
+$$
+
+This final result shows that $T_1(t)$ and $T_2(t)$ are pretty much the same function, except for a coefficient and a constant term. This result is reasonable, because the heat exchanged over time is the same, so the way one temperature function increases should match the way the other temperature function decreases. The constant term $c$ can be found remembering that for time going to infinity bot functions equals $T_eq$, and so:
+
+$$
+  T_{eq} = - \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T_{eq} + c
+$$
+
+$$
+  T_{eq} \cdot (1 + \frac{m_2 \cdot c_2}{m_1 \cdot c_1}) = c
+$$
+
+$$
+  \frac{m_1 \cdot c_1 \cdot T^1_{init} + m_2 \cdot c_2 \cdot T^2_{init}}{m_1 \cdot c_1 + m_2 \cdot c_2} \cdot (\frac{m_1 \cdot c_1 + m_2 \cdot c_2}{m_1 \cdot c_1}) = c
+$$
+
+$$
+  c = \frac{m_1 \cdot c_1 \cdot T^1_{init} + m_2 \cdot c_2 \cdot T^2_{init}}{m_1 \cdot c_1}
+$$
 
 
 
