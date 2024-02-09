@@ -1,32 +1,26 @@
 # Temperatures
 
-With this repo I'd like to show you some of my (very simple) results about the study of thermodynamics. In particular, I analitically studied the way temperature of objects change over time, and I built some basic GUI interface with python to plot the result I found. The problems I analyzed go for a crescent way of difficulty, and the repo ends with a general solution I came up with that comprehend all the possible situations. Hope it could be interesting :)
+With this repo I'd like to show you some of my (very simple) results about my study of thermodynamics. In particular, I analitically studied the way temperature of objects change over time, and I built some basic GUI interfaces with python to plot the results I found. The problems I analyzed go for a crescent way of difficulty, and the repo ends with a general solution I came up with that comprehend all the possible situations. Hope it could be interesting :)
 
 ## Table of Contents
-- [First problem: single object and environment](#first-problem-single-object-and-environment)
-- [Second problem: two objects without environment](#second-problem-two-objects-without-the-environment)
-
-The scripts in this repo deal with some basic thermodynamics, displaying the rate of change in temperature of objects over time. Every script deal with a different problem:
-- `object_environment.py`: this script plot the temperature / time graph of an object cooling or heating in a steady temperature environment.
-- `object_object.py`: this script plot the temperature / time graph of two object at different temperatures transfering heat to each other. The heat transfer is only between the two object, no environment is considered.
-- `object_object_environment.py`: this script plot the temperature / time graph of two object at different temperatures transfering heat to each other, surrounded by a steady temperature environment.
-
-Also, in the end I present a more general way to compute this problem.
+- [First problem: single object and the environment](#first-problem-single-object-and-the-environment)
+- [Second problem: two objects without environment](#second-problem-two-objects-without-environment)
+- [Third problem: two objects and the environment](#third-problem-two-objects-and-the-environment)
+- [A more general way](#a-more-general-way)
 
 
 
 
-## First problem: single object and environment
-
+## First problem: single object and the environment
 
 Let's consider an object of mass $m$, temperature $T_{init}$ and specific heat $c$ surrounded by an environment with a steady temperature $T_{env}$ and with a thermal resistance $R$ between them. 
-From this, it is possible to analytically find the temperature function $T(t)$ of the object, that is, find the rate of change in temperature over time. Actually, it's exponential.
+From this, we would like to find the temperature function $T(t)$ of the object as time passes, that is, find the rate of change in temperature over time. Actually, it's exponential.
 
 To find it, let us consider a system with the properties we provided. It doesn't matter if the object is cooler or hotter than the environment, physics works both ways :)
 
-<img width="596" alt="image" src="https://github.com/leonardobertolani/temperatures/assets/102794282/df7a909f-f8de-4c36-b26b-96dd548bf111">
-
-
+<p align="center">
+  <img width="596" alt="image" src="https://github.com/leonardobertolani/temperatures/assets/102794282/df7a909f-f8de-4c36-b26b-96dd548bf111"/>
+</p>
 
 Given that, let us quantify the total heat transfered by the object or to the object in a very small period of time $dt$:
 
@@ -57,7 +51,12 @@ $$T(t) = (T_{init} - T_{env})e^{-\frac{1}{R \cdot m \cdot c}t} + T_{env}$$
 
 This function goes to $T_{env}$ when time goes to infinity, and equals $T_{init}$ at the starting point $T(0)$. It seems to work fine! 
 
-The `object_environment.py` python script uses this analytical result to plot the $T(t)$ graph of a general object, wrapping it into a Tkinter GUI that let you play with the properties of the system.
+Starting from this analytical solution I wrote the `object_environment.py` python script, that simply reads the properties of the system from some input-boxes and then plot the curve of the function.
+
+
+
+
+
 
 
 
@@ -65,13 +64,16 @@ The `object_environment.py` python script uses this analytical result to plot th
 
 Let's consider two objects of mass $m1$ and $m2$, temperature $T^1_{init}$ $T^2_{init}$ and specific heat $c_1$ and $c_2$, surrounded by an adiabatic environment (no environment transfer of heat happens) and with a thermal resistence $R$ between the two objects. We would like to discover the rate of change in temperature of the two objects.
 
-
+<p align="center">
 <img width="596" alt="image" src="https://github.com/leonardobertolani/temperatures/assets/102794282/bd9a5a47-122d-4e2f-9ba3-1ee9ee8c923a">
+</p>
 
-First of all, it can be usefull to find the equivalence temperature $T_{eq}$, that is the temperature that the two objects will reach once all the heat will have been transfered. From this point of view, the equivalence temperature can be found by comparing the heat exchanges of the two objects:
+### The equivalence temperature
+
+First of all, it can be usefull to find the equivalence temperature $T_{eq}$, that is the temperature that the two objects will reach at equilibrium, once all the heat will have been transfered. From this point of view, the equivalence temperature can be found by comparing the total heat exchanges of the two objects untill they reach that temperature:
 
 $$
-  m_1 \cdot c_1 \cdot (T^1_{init} -  T_{eq}) = m_2 \cdot c_2 \cdot (T^2_{init} -  T_{eq})
+  Q_{12} = - Q_{21} \implies m_1 \cdot c_1 \cdot (T^1_{init} -  T_{eq}) = - m_2 \cdot c_2 \cdot (T^2_{init} -  T_{eq})
 $$
 
 From here we have
@@ -80,15 +82,18 @@ $$
   T_{eq} = \frac{m_1 \cdot c_1 \cdot T^1_{init} + m_2 \cdot c_2 \cdot T^2_{init}}{m_1 \cdot c_1 + m_2 \cdot c_2}
 $$
 
-As we can see, the equivalence temperature seems to be the weighted average of the initial objects temperatures, with the weights equal to the product $m \cdot c$.
+As we can see, the equivalence temperature seems to be the weighted average of the initial objects temperatures, with the weights expressed by the product $m \cdot c$.
 
-We can generalize this situation for every interval of time: for a system at time $t$, after a small period of time $dt$ the amount of heat that the two objects will have been transfered equals to
+
+### The relation between temperature curves
+
+Now let's understand what happens to our system after a really short period of time $dt$. The amount of heat that the two objects will have been transfered equals to
 
 $$
   Q_{tot} = m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t)) = - m_2 \cdot c_2 \cdot (T_2(t + dt) - T_2(t))
 $$
 
-with the - sign always balancing the equation (in fact, when one temperature increases, the other decreases). From here we divide both terms by $dt$ and we obtain the following:
+with the - sign balancing the equation (in fact, when one temperature increases and its difference is positive, the other decreases and its difference is negative). From here we divide both terms by $dt$ and we obtain the following:
 
 $$
   m_1 \cdot c_1 \cdot \frac{dT_1(t)}{dt} = - m_2 \cdot c_2 \cdot \frac{dT_2(t)}{dt}
@@ -98,24 +103,24 @@ $$
   \frac{dT_1(t)}{dt} = - \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot \frac{dT_2(t)}{dt}
 $$
 
-Now we integrate both sides of the equation and we obtain:
+Then we integrate both sides of the equation and we obtain:
 
 $$
   T_1(t) = - \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T_2(t) + c
 $$
 
-This final result shows that $T_1(t)$ and $T_2(t)$ are pretty much the same function, except for a coefficient and a constant term. This result is reasonable, because the heat exchanged over time is the same, so the way one temperature function increases should match the way the other temperature function decreases. The constant term $c$ can be found remembering that for time going to infinity bot functions equals $T_{eq}$, and so:
+This final result shows that $T_1(t)$ and $T_2(t)$ are pretty much the same function, except for a coefficient and a constant term. This result is reasonable, because the heat exchanged by the objects over time is the same, so the way one temperature function increases should match the way the other temperature function decreases. The constant term $c$ can be found remembering that for time going to infinity bot functions equals $T_{eq}$, and so:
 
 $$
-  T_{eq} = - \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T_{eq} + c
-$$
-
-$$
-  T_{eq} \cdot (1 + \frac{m_2 \cdot c_2}{m_1 \cdot c_1}) = c
+  T_{eq} = - \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T_{eq} + c \qquad t \to\infty
 $$
 
 $$
-  \frac{m_1 \cdot c_1 \cdot T^1_{init} + m_2 \cdot c_2 \cdot T^2_{init}}{m_1 \cdot c_1 + m_2 \cdot c_2} \cdot (\frac{m_1 \cdot c_1 + m_2 \cdot c_2}{m_1 \cdot c_1}) = c
+  c = T_{eq} \cdot (1 + \frac{m_2 \cdot c_2}{m_1 \cdot c_1})
+$$
+
+$$
+  c = \frac{m_1 \cdot c_1 \cdot T^1_{init} + m_2 \cdot c_2 \cdot T^2_{init}}{m_1 \cdot c_1 + m_2 \cdot c_2} \cdot (\frac{m_1 \cdot c_1 + m_2 \cdot c_2}{m_1 \cdot c_1})
 $$
 
 $$
@@ -125,9 +130,17 @@ $$
 The equation can eventually be written as:
 
 $$
-  T_1(t) = - \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T_2(t) + T^1_{init} + \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T^2_{init}
+  T_1(t) = - \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T_2(t) + c = - \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T_2(t) + T^1_{init} + \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T^2_{init}
 $$
 
+and, of course
+
+$$
+T_2(t) = - \frac{m_1 \cdot c_1}{m_2 \cdot c_2} \cdot (T_1(t) - c) = - \frac{m_1 \cdot c_1}{m_2 \cdot c_2} \cdot (T_1(t) - T^1_{init} - \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T^2_{init})
+$$
+
+
+### The differential equation
 Finally, let's rewrite the previous equation using the electro-thermal analogy: the amount of heat transfered in a $dt$ interval can be expressed also by the difference in temperature at time $t$ between the object and by the thermal resistence $R$. 
 
 $$
@@ -141,13 +154,6 @@ m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t)) = - \frac{T_1(t) - T_2(t)}{R} \cdot d
 $$
 
 As we seen, the functions $T_1(t)$ can be expressed in terms of the function $T_2(t)$, and vice-versa. From the previous result we can go on and write:
-
-$$
-  T_1(t) = - \frac{m_2 \cdot c_2}{m_1 \cdot c_1} \cdot T_2(t) + c \implies 
-  T_2(t) = - \frac{m_1 \cdot c_1}{m_2 \cdot c_2} \cdot (T_1(t) - c)
-$$
-
-From here, with some algebric manipulation of the last equation we can obtain:
 
 $$
 m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t)) = - \frac{T_1(t) - T_2(t)}{R} \cdot dt
@@ -175,7 +181,7 @@ $$
   T_1(t) = e^{-\gamma t} (c_1 + \frac{c}{m_2 \cdot c_2 \cdot R} \cdot \frac{1}{\gamma} \cdot e^{\gamma t}) =  c_1 \cdot e^{-\gamma t} + \frac{c}{m_2 \cdot c_2 \cdot R \cdot \gamma} = c_1 \cdot e^{-\gamma t} + T_{eq}
 $$
 
-Note that the the term $\frac{c}{m_2 \cdot c_2 \cdot R \cdot \gamma}$ perfectly equals the $T_{eq}$ term that we calculate before. This is obvious: with $t$ going to infinity we expect the temperature of the system approaching $T_{eq}$, and this is what happens in the formula. The last costant $c_1$ can be found remembering that $T_1(0) = T^1_{init}$, leading to these functions:
+Note that the the term $\frac{c}{m_2 \cdot c_2 \cdot R \cdot \gamma}$ perfectly equals the $T_{eq}$ term that we calculated before. This is obvious: with $t$ going to infinity we expect the temperature of the system approaching $T_{eq}$, and this is what happens in the formula. The last costant $c_1$ can be found remembering that $T_1(0) = T^1_{init}$, leading to these final functions:
 
 $$
   T_1(t) = (T^1_{init} - T_{eq}) \cdot e^{-\gamma t} + T_{eq}
@@ -185,46 +191,68 @@ $$
   T_2(t) = (T^2_{init} - T_{eq}) \cdot e^{-\gamma t} + T_{eq}
 $$
 
+These results have been applied in the `object_object.py` script. A simple GUI wraps the graph and add some input-boxes to let you play around with different scenarios.
 
 
 
-## object_object_environment.py
 
-Let's consider two objects of mass $m1$ and $m2$, temperature $T^1_{init}$ $T^2_{init}$ and specific heat $c_1$ and $c_2$, surrounded by an environment with a steady temperature $T_{env}$. The thermal resistance between the two objects is $R_{12}$, between the first object and the environment is $R_{1-env}$ and between the second object and the environment is $R_{2-env}$.
 
+
+
+
+## Third problem: two objects and the environment
+
+For the third problem, let's consider two objects of mass $m1$ and $m2$, temperature $T^1_{init}$ $T^2_{init}$ and specific heat $c_1$ and $c_2$, surrounded by an environment with a steady temperature $T_{env}$. The thermal resistance between the two objects is $R_{12}$, between the first object and the environment is $R_{1-env}$ and between the second object and the environment is $R_{2-env}$.
+
+
+<p align="center">
 <img width="593" alt="image" src="https://github.com/leonardobertolani/temperatures/assets/102794282/89ffea7a-0797-4346-a3e0-6fd5a4af990f">
+</p>
 
 
+From here, it's very difficult to find an analytical solution for the temperature curves of the objects, since the system is too complicated. Anyway, we can opt for an iterative solution! Like before, let us describe the total heat exchanged by the first object in a small period of time $dt$:
 
-From here, an analytical solution for the temperature diagram of the objects could be very difficult to calculate, since the system is too complicated. Anyway, we can opt for an iterative solution! Let us describe the total heat exchanged by the first object in a small period of time $dt$ as:
-
-$$Q_{total} = m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t))$$
+$$
+Q_{total} = m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t))
+$$
 
 Again, we can think of the total heat transfered as the total heat power released in the $dt$ interval, so:
 
-$$Q_{total} = \dot{Q}_{total} \cdot dt = m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t))$$
+$$
+Q_{total} = \dot{Q}_{total} \cdot dt = m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t))
+$$
 
 Now, the heat power that is being exchanged during the $dt$ interval is the sum of the heat power transfered from oject 1 through di environment and the heat power transfered from object 1 through object 2. 
-Thus, by using the electro-thermal analogy we can conclude that:
+Thus, by using the electro-thermal analogy we conclude that:
 
-$$-(\frac{T_1(t) - T_2(t)}{R_{12}} + \frac{T_1(t) - T_{env}}{R_{1-env}}) \cdot dt = m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t))$$
+$$
+-(\frac{T_1(t) - T_2(t)}{R_{12}} + \frac{T_1(t) - T_{env}}{R_{1-env}}) \cdot dt = m_1 \cdot c_1 \cdot (T_1(t + dt) - T_1(t))
+$$
 
 The - sign is fundamental to maintain the equivalence (for example, suppose $T_1(t) > T_2(t) > T_{env}$: in that case $T_1(t) - T_2(t) > 0$ and $T_1(t) - T_{env} > 0$ but $T_1(t + dt) - T_1(t) < 0$ and so the - is fundamental so balance the equation).
 
-From this equation we can calculate the temperature of the object at time $t + dt$ given the temperature of the system at time $t$:
+From this equation we notice that we can derive the temperature of the object at time $t + dt$ given the state of the system at time $t$, in fact:
 
 $$T_1(t + dt) = T_1(t) - (\frac{T_1(t) - T_2(t)}{R_{12} \cdot m_1 \cdot c_1} + \frac{T_1(t) - T_{env}}{R_{1-env} \cdot m_1 \cdot c_1}) \cdot dt$$
 
-For example, after the first $dt$ interval the temperature would be:
+For example, after the first $dt$ interval the temperature would become:
 
-$$T_1(0 + dt) = T_1(0) - (\frac{T_1(0) - T_2(0)}{R_{12} \cdot m_1 \cdot c_1} + \frac{T_1(0) - T_{env}}{R_{1-env} \cdot m_1 \cdot c_1}) \cdot dt = T^1_{init} - (\frac{T^1_{init} - T^2_{init}}{R_{12} \cdot m_1 \cdot c_1} + \frac{T^1_{init} - T_{env}}{R_{1-env} \cdot m_1 \cdot c_1}) \cdot dt$$
+$$
+T_1(0 + dt) = T_1(dt)= T_1(0) - (\frac{T_1(0) - T_2(0)}{R_{12} \cdot m_1 \cdot c_1} + \frac{T_1(0) - T_{env}}{R_{1-env} \cdot m_1 \cdot c_1}) \cdot dt = T^1_{init} - (\frac{T^1_{init} - T^2_{init}}{R_{12} \cdot m_1 \cdot c_1} + \frac{T^1_{init} - T_{env}}{R_{1-env} \cdot m_1 \cdot c_1}) \cdot dt
+$$
 
-By iterating this formula over and over again it is possible to build the temperature graph of the object. This rule is applied in the `object_object_environment.py` script, and seems to work pretty well.
+We can see that by iterating this formula over and over again and by storing each time the values computed we are able to build the temperature curve of the object. Obviously, all the temperatures of the system must be updated over time, so to be able to build the $T_1(t)$ temperature curve is necessary to build the $T_2(t)$ temperature curve at the same time. This idea is applied in the `object_object_environment.py` script, and seems to work pretty well.
+
+
+
+
+
+
 
 
 
 ## A more general way
-As seen in the previous paragraph about the `object_object_environment.py` script, it is not always necessary to compute a differential equation to plot the graph of different objects in the system. By using the iterative approach, the only difficulty is writing the first equation correctly and then plugging it into a script that builds a graph step by step. 
+As seen in the previous paragraph about the `object_object_environment.py` script, it is not always necessary to compute a differential equation to plot the graph of different objects in the system. By using the iterative approach, the only difficulty is writing the first equation correctly and then plugging it into a script that builds a function step by step. 
 
 For example, suppose we have $N$ objects with different masses, specific heats, and temperatures, all linked together, surrounded by the same environment. The temperature equation for, let's say, object 1 would simply be:
 
@@ -238,9 +266,10 @@ $$
 T_1(t + dt) = T_1(t) - (\frac{T_1(t) - T_2(t)}{R_{12} \cdot m_1 \cdot c_1} + \frac{T_1(t) - T_3(t)}{R_{13} \cdot m_1 \cdot c_1} + \ldots + \frac{T_1(t) - T_N(t)}{R_{1N} \cdot m_1 \cdot c_1} + \frac{T_1(t) - T_{env}}{R_{1-env} \cdot m_1 \cdot c_1}) \cdot dt
 $$
 
-Not every object can exchange heat with all others. For instance, object 1 may directly exchange heat with objects 2 and 4 but not with objects 3 and 5. We can represent these objects and their thermal interactions through a weighted graph, where each node symbolizes an object and each edge represents a connection between two objects, with the weight indicating thermal resistances.
+Not every object should exchange heat with all others. For instance, object 1 may directly exchange heat with objects 2 and 4 but not with objects 3 and 5. We can represent these objects and their thermal interactions through a weighted graph, where each node symbolizes an object and each edge represents a connection between two objects, with the weight indicating thermal resistances.
 
+<p align="center">
 <img width="595" alt="image" src="https://github.com/leonardobertolani/temperatures/assets/102794282/9807af79-4f09-44a8-87e2-ac215c8cedfc">
-
+</p>
 
 This concept presents a more **scalable** and **efficient** approach to the problem of finding the temperature variations over time, and represent the generalization of the previous exercises. 
