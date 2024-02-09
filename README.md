@@ -1,5 +1,11 @@
 # Temperatures
 
+With this repo I'd like to show you some of my (very simple) results about the study of thermodynamics. In particular, I analitically studied the way temperature of objects change over time, and I built some basic GUI interface with python to plot the result I found. The problems I analyzed go for a crescent way of difficulty, and the repo ends with a general solution I came up with that comprehend all the possible situations. Hope it could be interesting :)
+
+## Table of Contents
+- [First problem: single object and environment](#first-problem-single-object-and-environment)
+- [Second problem: two objects without environment](#second-problem-two-objects-without-the-environment)
+
 The scripts in this repo deal with some basic thermodynamics, displaying the rate of change in temperature of objects over time. Every script deal with a different problem:
 - `object_environment.py`: this script plot the temperature / time graph of an object cooling or heating in a steady temperature environment.
 - `object_object.py`: this script plot the temperature / time graph of two object at different temperatures transfering heat to each other. The heat transfer is only between the two object, no environment is considered.
@@ -10,7 +16,7 @@ Also, in the end I present a more general way to compute this problem.
 
 
 
-## object_environment.py
+## First problem: single object and environment
 
 
 Let's consider an object of mass $m$, temperature $T_{init}$ and specific heat $c$ surrounded by an environment with a steady temperature $T_{env}$ and with a thermal resistance $R$ between them. 
@@ -55,7 +61,7 @@ The `object_environment.py` python script uses this analytical result to plot th
 
 
 
-## object_object.py
+## Second problem: two objects without environment
 
 Let's consider two objects of mass $m1$ and $m2$, temperature $T^1_{init}$ $T^2_{init}$ and specific heat $c_1$ and $c_2$, surrounded by an adiabatic environment (no environment transfer of heat happens) and with a thermal resistence $R$ between the two objects. We would like to discover the rate of change in temperature of the two objects.
 
