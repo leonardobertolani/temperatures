@@ -3,11 +3,22 @@
 With this repo I'd like to show you some of my (very simple) results about my study of thermodynamics. In particular, I analitically studied the way temperature of objects change over time, and I built some basic GUI interfaces with python to plot the results I found. The problems I analyzed go for a crescent way of difficulty, and the repo ends with a general solution I came up with that comprehend all the possible situations. Hope it could be interesting :)
 
 ## Table of Contents
-- [First problem: single object and the environment](#first-problem-single-object-and-the-environment)
-- [Second problem: two objects without environment](#second-problem-two-objects-without-environment)
-- [Third problem: two objects and the environment](#third-problem-two-objects-and-the-environment)
-- [A more general way](#a-more-general-way)
+- [Tackling the problem](#tackling-the-problem)
+  - [First problem: single object and the environment](#first-problem-single-object-and-the-environment)
+  - [Second problem: two objects without environment](#second-problem-two-objects-without-environment)
+  - [Third problem: two objects and the environment](#third-problem-two-objects-and-the-environment)
+  - [A more general way](#a-more-general-way)
+- [Optimizing the solution](#optimizing-the-solution)
+  - [First approach: standard python]
+  - [Second approach: numpy]
 
+
+# Tackling the problem
+The problem of determining the temperature variation of a body over time can be quite complicated. Let us therefore make a few preliminary remarks: first, we will consider free evolution systems, i.e. systems that evolve freely once the initial conditions are fixed.
+Furthermore, we will consider temperature as the only function of time, all other variables being independent of any other quantity.
+
+We will therefore tackle the problem of determining the temperature function with an increasing degree of difficulty: we will start from a simple case, for which the analytical solution is easily calculable, then to an intermediate one, for which the analytical solution is already more complex, and finally
+we will find a way to generalise the calculation and find any solution numerically.
 
 
 
@@ -272,4 +283,17 @@ Not every object should exchange heat with all others. For instance, object 1 ma
 <img width="595" alt="image" src="https://github.com/leonardobertolani/temperatures/assets/102794282/9807af79-4f09-44a8-87e2-ac215c8cedfc">
 </p>
 
-This concept presents a more **scalable** and **efficient** approach to the problem of finding the temperature variations over time, and represent the generalization of the previous exercises. 
+This concept presents a more **scalable** and **efficient** approach to the problem of finding the temperature variations over time, and represent the generalization of the previous exercises.
+
+
+
+
+
+
+
+
+
+# Optimizing the solution
+
+
+
