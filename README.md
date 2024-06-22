@@ -9,8 +9,8 @@ With this repo I'd like to show you some of my (very simple) results about my st
   - [Third problem: two objects and the environment](#third-problem-two-objects-and-the-environment)
   - [A more general way](#a-more-general-way)
 - [Optimizing the solution](#optimizing-the-solution)
-  - [First approach: standard python]
-  - [Second approach: numpy]
+  - [First approach: standard python](#firts-approach:standard-python)
+  - [Second approach: numpy](#second-approach:numpy)
 
 
 # Tackling the problem
@@ -338,3 +338,9 @@ $$
 The presence of a scalar product has an important advantage: it allows algorithmic optimization techniques to be implemented, since many calculations can be parallelized
 by modern processors.
 This will therefore be the mathematical structure that we will implement via software, in order to determine the algorithmic approach that best optimize the vector calculation and thus the solution to our problem.
+
+
+
+## First approach: standard python
+The first way we can try to implement the equation above is by using the python standard library. This approach, that we will call standard, is implemented in the `standard_dot.py` file, under the `optimization` directory, where a little GUI helps us to visualize the temperature trend of the objects.
+
