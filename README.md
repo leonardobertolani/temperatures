@@ -45,14 +45,14 @@ Then, from the electro-thermal analogy we can express the heat power using the t
 
 $$-\frac{T(t) - T_{env}}{R} \cdot dt = m \cdot c \cdot (T(t + dt) - T(t))$$
 
-The - sign is fundamental to maintain the equivalence (for example, suppose the object is cooling: in that case $T(t) - T_{env} > 0$ but $T(t + dt) - T(t) < 0$ and so the - is fundamental so balance the equation.
+The - sign is fundamental to maintain the equivalence (for example, suppose the object is cooling: in that case $T(t) - T_{env} > 0$ but $T(t + dt) - T(t) < 0$ and so the - is fundamental to balance the equation.
 If the object is warming it goes the other way round).
 
 Finally, we can divide both terms by $dt$: the $dt$ in the left term cancels out, while in the right term we recognize the derivative of function $T(t)$:
 
 $$-\frac{T(t) - T_{env}}{R} = m \cdot c \cdot \frac{(T(t + dt) - T(t))}{dt} = m \cdot c \cdot \frac{dT(t)}{dt}$$
 
-We eventually obtained this beautiful linear differential equation for the temperature function! In the end it should look like this:
+We eventually obtain this beautiful linear differential equation for the temperature function! In the end it should look like this:
 
 $$\frac{dT(t)}{dt} + \frac{1}{R \cdot m \cdot c}T(t) = \frac{T_{env}}{R \cdot m \cdot c}$$
 
@@ -294,6 +294,50 @@ This concept presents a more **scalable** and **efficient** approach to the prob
 
 
 # Optimizing the solution
+Now that we have established a general criterion for studying the free evolution
+of the system over time, let us try different algorithmic approaches to calculate its evolution.
+
+As we have seen, the numerical strategy found consists in exploiting the state of the system
+at time $t$ to determine the future situation after a very short time instant $dt$. In fact, for what 
+we have deduced, the temperature of a generic object $i \in N$ with mass $m_i$ and specific heat $c_i$, connected to a set $J \subset N$ of objects ${1, ..., j}$ via term resistances
+$R_{ij}$, can be calculated as
+
+$$
+T_i(t + dt) = T_i(t) - (\frac{T_i(t) - T_1(t)}{R_{i1} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_1(t)}{R_{i2} \cdot m_i \cdot c_i} + \ldots + \frac{T_i(t) - T_N(t)}{R_{iN} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_{env}}{R_{i-env} \cdot m_i \cdot c_i}) \cdot dt
+$$
+
+where ${forall i in N, R_{ii} = 1$ by our convention.
+
+The situation can therefore be represented in this way
+
+{picture of the network}
+
+We easily realise then that the calculation to be performed at each layer is nothing more than a scalar product between the vector of temperatures of the objects at instant $t$ and the vector of thermal resistances of 
+that object with respect to all the others. In effect, we observe that
+
+$$
+T_i(t + dt) = T_i(t) - (\frac{T_i(t) - T_1(t)}{R_{i1} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_1(t)}{R_{i2} \cdot m_i \cdot c_i} + \ldots + \frac{T_i(t) - T_N(t)}{R_{iN} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_{env}}{R_{i-env} \cdot m_i \cdot c_i}) \cdot dt
+$$
+
+$$
+T_i(t + dt) = T_i(t) - ( \sum_{j=1}^{N}\frac{T_i(t) - T_j(t)}{R_{ij} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_{env}}{R_{i-env} \cdot m_i \cdot c_i}) \cdot dt
+$$
+
+$$
+T_i(t + dt) = T_i(t) - ( \frac{1}{m_i \cdot c_i} \sum_{j=1}^{N}\frac{1}{R_{ij}} \cdot (T_i(t) - T_j(t)) + \frac{T_i(t) - T_{env}}{R_{i-env} \cdot m_i \cdot c_i}) \cdot dt
+$$
 
 
 
+The summation we have extracted represents a scalar product between the vector of the normalised temperatures with respect to object $i$ and the vector
+of the inverse of the thermal resistances with respect to object $i$. Furthermore, we realise that the heat contribution given by the environment has the same mathematical structure as the others,
+therefore we can treat the environment as an object to all intents and purposes, thus including it in the summation but remembering that its temperature must remain constant,
+and thus imposing that $m_{amb} = \inf$ and $c_{amb} = \inf$.
+
+$$
+T_i(t + dt) = T_i(t) - ( \frac{1}{m_i \cdot c_i} \sum_{j=1}^{N + 1}\frac{1}{R_{ij}} \cdot (T_i(t) - T_j(t)) ) \cdot dt \; T_{env} = c
+$$
+
+The presence of a scalar product has an important advantage: it allows algorithmic optimisation techniques to be implemented, since many calculations can be parallelised
+by modern processors.
+This will therefore be the mathematical structure that we will implement via software, in order to determine the algorithmic approach that best succeeds in optimising the vector calculation and thus the solution to our problem.
