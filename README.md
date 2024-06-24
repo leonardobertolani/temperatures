@@ -9,8 +9,9 @@ With this repo I'd like to show you some of my (very simple) results about my st
   - [Third problem: two objects and the environment](#third-problem-two-objects-and-the-environment)
   - [A more general way](#a-more-general-way)
 - [Optimizing the solution](#optimizing-the-solution)
-  - [First approach: standard python](#firts-approach:standard-python)
-  - [Second approach: numpy](#second-approach:numpy)
+  - [First attempt: standard python](#first-attempt-standard-python)
+  - [Second attempt: numpy](#second-attempt-numpy)
+  - [Standard vs Numpy approach: a benchmark](#standard-vs-numpy-approach-a-benchmark)
 
 
 # Tackling the problem
@@ -335,12 +336,80 @@ $$
 T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N + 1}\frac{1}{R_{ij}} \cdot (T_i(t) - T_j(t)) \ ) \quad , \quad T_{env} = c
 $$
 
-The presence of a scalar product has an important advantage: it allows algorithmic optimization techniques to be implemented, since many calculations can be parallelized
-by modern processors.
-This will therefore be the mathematical structure that we will implement via software, in order to determine the algorithmic approach that best optimize the vector calculation and thus the solution to our problem.
+This is the general formulation that we will use to solve our problem. As we can see, determining the temperature of a given object at a given time requires us to compute $o(N)$ multiplications, while the evolution of the whole system requires us to compute $o(N^2 \cdot D)$ iterations, where N is the cardinality of the set of objects and D is the total number of infinitesimal intervals of time that make up our simulation. Generally speaking, the numerical approach doesn't seem to scale well.
+
+However, the presence of a scalar product has an important advantage: it allows algorithmic optimization techniques to be implemented, since many calculations can be parallelized
+by modern processors. So, before giving up with this possible solution, let's give modern parallel computing a chance.
 
 
 
-## First approach: standard python
-The first way we can try to implement the equation above is by using the python standard library. This approach, that we will call standard, is implemented in the `standard_dot.py` file, under the `optimization` directory, where a little GUI helps us to visualize the temperature trend of the objects.
+
+
+
+## First attempt: standard python
+The first way we can try to implement the equation above is by using the python standard library. This first approach, that we will call standard, is implemented in the `standard_n_objects.py` file, under the `optimization` directory, where a little GUI helps us to visualize the temperature trend of the objects.
+
+The core of the algorithm is this function here
+```python
+def standard_algorithm(T_actual, R_actual, m_actual, c_actual):
+    T_time_matrix = []
+    T_time_matrix.append(T_actual)
+
+    for i in range(1, NUM_INTERVALS):
+
+        res_actual = []
+
+        for j in range(0, OBJECT_NUMBER):
+            R_dot = [1 / R_actual[j][n] for n in range(0, OBJECT_NUMBER + 1)]
+            T_dot = [T_actual[j] - T_actual[n] for n in range(0, OBJECT_NUMBER + 1)]
+
+            res_actual.append(T_actual[j] - DT / (m_actual[j] * c_actual[j]) * dot_product(R_dot, T_dot))
+
+        res_actual.append(T_actual[OBJECT_NUMBER])
+        T_time_matrix.append(res_actual)
+
+        T_actual = res_actual
+
+    return T_time_matrix
+```
+The `standard_algorithm` function takes the initial state of the system as input, iterates the dot product (using the function `dot_product`) as specified in the formula, and stores each temperature at each instant of time in a matrix, which is eventually returned.
+The syntax of this algorithm is simple (and not very clean), but it is enough to understand how our formula can be roughly translated into a programming language to run a simple simulation script.
+
+
+
+
+
+## Second attempt: numpy
+Let's now try to include a bit of parallel programming in our algorithm by using a well known python library for vector operations: **numpy**. As before, the numpy approach is implemented in the `numpy_n_objects.py` file, under the `optimization` directory, with a simple GUI that helps to visualize the simulation.
+
+The core of the numpy approach is this function
+```python
+def numpy_algorithm(T_actual, R_actual, m_actual, c_actual):
+    T_time_matrix = np.empty((NUM_INTERVALS, OBJECT_NUMBER + 1))
+    T_time_matrix[0] = T_actual
+
+    R_inv_dot = 1 / R_actual[:, :]
+
+    for i in range(1, NUM_INTERVALS):
+
+        T_dot = np.resize(T_time_matrix[i - 1], (OBJECT_NUMBER + 1, OBJECT_NUMBER + 1)).T - T_time_matrix[i - 1]
+        dot_result = T_time_matrix[i - 1] - (DT / (m_actual * c_actual)) * np.diag(R_inv_dot @ T_dot.T)
+        T_time_matrix[i] = dot_result
+
+    return T_time_matrix
+```
+The `numpy_algorithm` function takes the initial state of the system as input and then uses matrix algebra and built-in functions to compute the final result. In particular, I thought of the scalar product as a matrix product between the resistance matrix and the normalised temperature matrix, 
+where only the diagonal of the resulting matrix is relevant, and represents the scalar product. This approach is not perfect, since many useless calculations are being made, but it's the simplest algorithm I could come up with.
+
+
+## Standard vs Numpy approach: a benchmark
+Let us now put the two described algorithms to the test, and observe their weaknesses and strengths. In the file `benchmark_standard_numpy.py` is a simple script comparing the two approaches, which tests them by looking at the execution time they take as the number of objects changes 
+or the size of the simulation interval. The output of the script should look something like this
+
+![benchmark](https://github.com/leonardobertolani/temperatures/assets/102794282/211529e0-dc49-4374-8a28-6ca87cc71625)
+
+The reported result is interesting: as far as the script in standard python is concerned, it presents a quadratic curve with respect to the number of objects, and a linear growth with respect to the duration of the interval, as we had already predicted. However, something changes in the curves of the numpy script: although it too has
+linear growth with respect to the duration of the interval, the complexity with respect to the number of objects now seems to be lowered to $o(1)$: this is where the parallel calculation has its way.
+
+
 
