@@ -296,7 +296,7 @@ This concept presents a more **scalable** and **efficient** approach to the prob
 
 # Optimizing the solution
 Now that we have established a general criterion for studying the free evolution
-of the system over time, let us try different algorithmic approaches to calculate its evolution.
+of the system over time, let us try different algorithmic approaches to actually implement it.
 
 As we have seen, the numerical strategy found consists in using the state of the system
 at time $t$ to determine the future situation after a very short time instant $dt$. In fact, for what 
@@ -404,12 +404,23 @@ where only the diagonal of the resulting matrix is relevant, and represents the 
 
 ## Standard vs Numpy approach: a benchmark
 Let us now put the two described algorithms to the test, and observe their weaknesses and strengths. In the file `benchmark_standard_numpy.py` is a simple script comparing the two approaches, which tests them by looking at the execution time they take as the number of objects changes 
-or the size of the simulation interval. The output of the script should look something like this
+or the size of the simulation interval increases. The output of the script should look something like this
 
-![benchmark](https://github.com/leonardobertolani/temperatures/assets/102794282/211529e0-dc49-4374-8a28-6ca87cc71625)
+![benchmark_noShareY](https://github.com/leonardobertolani/temperatures/assets/102794282/42c15d04-cb41-46c2-8f45-5eb868f9166b)
 
 The reported result is interesting: as far as the script in standard python is concerned, it presents a quadratic curve with respect to the number of objects, and a linear growth with respect to the duration of the interval, as we had already predicted. However, something changes in the curves of the numpy script: although it too has
-linear growth with respect to the duration of the interval, the complexity with respect to the number of objects now seems to be lowered to $o(1)$: this is where the parallel calculation has its way.
+linear growth with respect to the duration of the interval, the complexity with respect to the number of objects now seems to be very close to $o(1)$: this is where the parallel calculation has its way.
+
+Furthermore, if we put the y-axis of the two graphs on the same scale, we can see that the real bottleneck of the whole computation is given by the number of objects.
+
+![benchmark](https://github.com/leonardobertolani/temperatures/assets/102794282/072b1d59-064f-42e2-ae1b-ea8584625fe9)
+
+In fact, as we can see, even if numpy manages to do it better, the two curves rise at the same rate, and the execution time elapsed for the duration of the simulation is negligible in relation to the execution time spent on the objects.
+
+Now let's try to push numpy to its limits and see how much parallel execution can bear. To do this, we'll modify the `benchmark_standard_numpy.py` script to ask numpy to determine the evolution of the system when made up of up to 600 objects (first graph), and when the duration of the simulation is extended up to $600 000 s$ (about a week, second graph).
+
+![benchmark_pureNumpy3](https://github.com/leonardobertolani/temperatures/assets/102794282/d1b5da92-8959-4105-b6c9-b8b3a158833e)
 
 
+This third set of graphs shows us that the quadratic dependence on the number of objects is still present in our code, and it couldn't be otherwise, since the mathematical structure we have chosen implies a quadratic dependence. The most important information we can derive from the graph is the better degree of optimization of the second approach compared to the first, reminding us of the importance of using specific libraries such as numpy for computations where performance is crucial, rather than reinventing the wheel with our own code.
 
