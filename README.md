@@ -311,7 +311,9 @@ where $\forall i \in N, R_{ii} = 1$ by our convention.
 
 The situation can therefore be represented in this way
 
-{picture of the network}
+<p align="center">
+  <img width="635" alt="temp_network" src="https://github.com/user-attachments/assets/202e39f9-e628-4708-9342-d71fb29380e7">
+</p>
 
 From here, we easily realise that the computation to be performed at each layer is nothing more than a scalar product between the vector of temperatures of the objects at instant $t$ and the vector of thermal resistances of 
 that object with respect to all the others. In effect, we observe that
