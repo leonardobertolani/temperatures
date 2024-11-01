@@ -402,6 +402,47 @@ The `numpy_algorithm` function takes the initial state of the system as input an
 where only the diagonal of the resulting matrix is relevant, and represents the scalar product. This approach is not perfect, since many useless calculations are being made, but it's the simplest algorithm I could come up with.
 
 
+## Third attempt: totally vectorized numpy
+The performance of the numpy library could be furtherly improved by transforimng the actual mathematical formulation in a more vectorized one.
+To do so, let's consider again our latest equation: 
+
+$$
+T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N + 1}\frac{1}{R_{ij}} \cdot (T_i(t) - T_j(t)) \ )
+$$
+
+From here, it is possible to work a bit on the summation to extract the term $T_i(t)$
+
+$$
+T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N + 1}\frac{T_i(t)}{R_{ij}} - \sum_{j=1}^{N + 1}\frac{T_j(t)}{R_{ij}} \ )
+$$
+
+$$
+T_i(t + dt) = T_i(t) (1 - \frac{dt}{m_i \cdot c_i} \ \sum_{j=1}^{N + 1}\frac{1}{R_{ij}}) + \frac{dt}{m_i \cdot c_i} \sum_{j=1}^{N + 1}\frac{T_j(t)}{R_{ij}}
+$$
+
+With this final revisitation, we have split the contribution of $T_i(t)$ from the contribution of the other $T_j(t)$. Now, with a bit of immagination it is possible to
+rewrite this equation in terms of vectors and matrices products. Let us define $\vec{T}$(t) as a vector containing all the temperatures of objects at istant t, that is
+
+$$
+\vec{T}(t) = \[ T_1(t), \ T_2(t), ..., \ T_{N+1}(t) \]
+$$
+
+Let us also define $M_R$ as the following matrix:
+
+$$
+M_R = \frac{dt}{m_i \cdot c_i \cdot R_{ij}} \quad \forall i, j \in \[0, \ N+1\]
+$$
+
+With these new objects we can now rewrite the above equation in the following way
+
+$$
+\vec{T}(t + dt) = \vec{T}(t) \odot (\vec{1} - M_R \cdot \vec{1}) + M_R \cdot \vec{T}(t)
+$$
+
+Where $\odot$ represents the **Hadamard product** (or element-wise product) of matrices. This final and compact formulation makes great use of vectors and matrices, and for this
+reason is highly parallelizable.
+
+
 ## Standard vs Numpy approach: a benchmark
 Let us now put the two described algorithms to the test, and observe their weaknesses and strengths. In the file `benchmark_standard_numpy.py` is a simple script comparing the two approaches, which tests them by looking at the execution time they take as the number of objects changes 
 or the size of the simulation interval increases. The output of the script should look something like this
