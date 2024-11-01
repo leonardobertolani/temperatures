@@ -61,15 +61,9 @@ def numpy_algorithm(T_actual, R_actual, m_actual, c_actual):
     return T_time_matrix
 
 
-def vectorized_algorithm(T_initial, R_matrix, m_initial, c_initial):
+def vectorized_algorithm(T_initial, Mr):
     T_time_matrix = np.empty((NUM_INTERVALS, OBJECT_NUMBER + 1))
     T_time_matrix[0] = T_initial
-
-    Mr = 1 / R_matrix[:, :]
-
-    for row in range(0, OBJECT_NUMBER+1):
-        for col in range(0, OBJECT_NUMBER+1):
-            Mr[row][col] *= DT/(m_initial[row]*c_initial[row])
 
 
     for i in range(1, NUM_INTERVALS):
@@ -138,8 +132,15 @@ for i in range(0, COMPARISON_NUM):
 
 
     #BENCHMARKING THE VECTORIZED/NUMPY ALGORITHM
+
+    Mr = 1 / initial_R[:, :]
+
+    for row in range(0, OBJECT_NUMBER + 1):
+        for col in range(0, OBJECT_NUMBER + 1):
+            Mr[row][col] *= DT / (initial_m[row] * initial_c[row])
+
     start_time = time.time()
-    vectorized_algorithm(initial_T, initial_R, initial_m, initial_c)
+    vectorized_algorithm(initial_T, Mr)
     end_time = time.time()
 
     executionTime_vectorizedAlg_objects.append(end_time - start_time)
@@ -197,8 +198,15 @@ for i in range(0, COMPARISON_NUM):
 
 
     # BENCHMARKING THE VECTORIZED/NUMPY ALGORITHM
+
+    Mr = 1 / initial_R[:, :]
+
+    for row in range(0, OBJECT_NUMBER + 1):
+        for col in range(0, OBJECT_NUMBER + 1):
+            Mr[row][col] *= DT / (initial_m[row] * initial_c[row])
+
     start_time = time.time()
-    vectorized_algorithm(initial_T, initial_R, initial_m, initial_c)
+    vectorized_algorithm(initial_T, Mr)
     end_time = time.time()
 
     executionTime_vectorizedAlg_duration.append(end_time - start_time)

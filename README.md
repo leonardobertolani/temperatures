@@ -419,17 +419,17 @@ T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N + 1}\frac{T_i(
 $$
 
 $$
-T_i(t + dt) = T_i(t) (1 - \frac{dt}{m_i \cdot c_i} \ \sum_{j=1}^{N + 1}\frac{1}{R_{ij}}) + \frac{dt}{m_i \cdot c_i} \sum_{j=1}^{N + 1}\frac{T_j(t)}{R_{ij}}
+T_i(t + dt) = T_i(t) (1 - \sum_{j=1}^{N + 1}\frac{dt}{m_i \cdot c_i \cdot R_{ij}}) + \sum_{j=1}^{N + 1}\frac{dt}{m_i \cdot c_i \cdot R_{ij}} \cdot T_j(t)
 $$
 
 With this final revisitation, we have split the contribution of $T_i(t)$ from the contribution of the other $T_j(t)$. Now, with a bit of immagination it is possible to
-rewrite this equation in terms of vectors and matrices products. Let us define $\vec{T}$(t) as a vector containing all the temperatures of objects at istant t, that is
+rewrite this equation in terms of vectors and matrices products. For this purpose, let us define $\vec{T}$(t) as a vector containing all the temperatures of objects at istant t, that is
 
 $$
 \vec{T}(t) = \[ T_1(t), \ T_2(t), ..., \ T_{N+1}(t) \]
 $$
 
-Let us also define $M_R$ as the following matrix:
+And let us also define a matrix $M_R$ in the following way:
 
 $$
 M_R = \frac{dt}{m_i \cdot c_i \cdot R_{ij}} \quad \forall i, j \in \[0, \ N+1\]
@@ -442,7 +442,23 @@ $$
 $$
 
 Where $\odot$ represents the **Hadamard product** (or element-wise product) of matrices. This final and compact formulation makes great use of vectors and matrices, and for this
-reason is highly parallelizable.
+reason is highly parallelizable. This equation is implemented in the `vectorized_n_objects.py` file under the `optimization` directory. Here is a brief code snippet
+that implements the vectorized formula:
+```python
+def vectorized_algorithm(T_initial, Mr):
+    T_time_matrix = np.empty((NUM_INTERVALS, OBJECT_NUMBER + 1))
+    T_time_matrix[0] = T_initial
+
+
+    for i in range(1, NUM_INTERVALS):
+        T_actual = T_time_matrix[i-1]
+        T_time_matrix[i] = T_actual*(1 - Mr @ np.ones(OBJECT_NUMBER+1)) + (Mr @ T_actual)
+
+    return T_time_matrix
+```
+
+
+
 
 
 ## Standard vs Numpy approach: a benchmark
