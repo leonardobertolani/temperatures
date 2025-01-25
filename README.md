@@ -8,9 +8,10 @@ With this repo I'd like to show you some of my (very simple) results about my st
   - [Second problem: two objects without environment](#second-problem-two-objects-without-environment)
   - [Third problem: two objects and the environment](#third-problem-two-objects-and-the-environment)
   - [A more general way](#a-more-general-way)
-- [Optimizing the solution](#optimizing-the-solution)
-  - [First attempt: standard python](#first-attempt-standard-python)
+- [Optimizing the numerical solution](#optimizing-the-numerical-solution)
+  - [First attempt: plain python](#first-attempt-plain-python)
   - [Second attempt: numpy](#second-attempt-numpy)
+  - [Third attempt: totally vectorized numpy](#third-attempt-totally-vectorized-numpy)
   - [Standard vs Numpy approach: a benchmark](#standard-vs-numpy-approach-a-benchmark)
 
 
@@ -294,7 +295,7 @@ This concept presents a more **scalable** and **efficient** approach to the prob
 
 
 
-# Optimizing the solution
+# Optimizing the numerical solution
 Now that we have established a general criterion for studying the free evolution
 of the system over time, let us try different algorithmic approaches to actually implement it.
 
@@ -307,16 +308,16 @@ $$
 T_i(t + dt) = T_i(t) - (\frac{T_i(t) - T_1(t)}{R_{i1} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_1(t)}{R_{i2} \cdot m_i \cdot c_i} + \ldots + \frac{T_i(t) - T_N(t)}{R_{iN} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_{env}}{R_{i-env} \cdot m_i \cdot c_i}) \cdot dt
 $$
 
-where $\forall i \in N, R_{ii} = 1$ by our convention.
+where $\forall i \in N, R_{ii} = 1$ by our convention. This result is also known in numerical analysis as **Forward Euler Method**, and it is the most basic method for numerically solve a complex differential equation.
 
-The situation can therefore be represented in this way
+Our intention though is to solve a **system** of interdependent differential equations (one for each object), which, refering to the previous numerical approach, can also be represented in this way
 
 <p align="center">
   <img width="635" alt="temp_network" src="https://github.com/user-attachments/assets/202e39f9-e628-4708-9342-d71fb29380e7">
 </p>
 
 From here, we easily realise that the computation to be performed at each layer is nothing more than a scalar product between the vector of temperatures of the objects at instant $t$ and the vector of thermal resistances of 
-that object with respect to all the others. In effect, we observe that
+that object with respect to all the others. Indeed, we observe that
 
 $$
 T_i(t + dt) = T_i(t) - (\frac{T_i(t) - T_1(t)}{R_{i1} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_1(t)}{R_{i2} \cdot m_i \cdot c_i} + \ldots + \frac{T_i(t) - T_N(t)}{R_{iN} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_{env}}{R_{i-env} \cdot m_i \cdot c_i}) \cdot dt
@@ -335,12 +336,46 @@ of the inverse of the thermal resistances with respect to object $i$. Furthermor
 and thus imposing that $m_{env} = \infty$ and $c_{env} = \infty$.
 
 $$
-T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N + 1}\frac{1}{R_{ij}} \cdot (T_i(t) - T_j(t)) \ ) \quad , \quad T_{env} = c
+T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N + 1}\frac{1}{R_{ij}} \cdot (T_i(t) - T_j(t)) \ ) \quad , \quad T_{N+1} = T_{env} = c
 $$
 
-This is the general formulation that we will use to solve our problem. As we can see, determining the temperature of a given object at a given time requires us to compute $o(N)$ multiplications, while the evolution of the whole system requires us to compute $o(N^2 \cdot D)$ iterations, where N is the cardinality of the set of objects and D is the total number of infinitesimal intervals of time that make up our simulation. Generally speaking, the numerical approach doesn't seem to scale well.
 
-However, the presence of a scalar product has an important advantage: it allows algorithmic optimization techniques to be implemented, since many calculations can be parallelized
+This formulation could be furtherly improved by transforming it in a more vectorized one.
+To do so, let's work a bit on the summation to extract the term $T_i(t)$
+
+$$
+T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N + 1}\frac{T_i(t)}{R_{ij}} - \sum_{j=1}^{N + 1}\frac{T_j(t)}{R_{ij}} \ )
+$$
+
+$$
+T_i(t + dt) = T_i(t) (1 - \sum_{j=1}^{N + 1}\frac{dt}{m_i \cdot c_i \cdot R_{ij}}) + \sum_{j=1}^{N + 1}\frac{dt}{m_i \cdot c_i \cdot R_{ij}} \cdot T_j(t)
+$$
+
+With this final revisitation, we have split the contribution of $T_i(t)$ from the contribution of the other $T_j(t)$. Now, with a bit of immagination it is possible to
+rewrite this equation in terms of vectors and matrices products. For this purpose, let us define $\vec{T}$(t) as a vector containing all the temperatures of objects at istant $t$, that is
+
+$$
+\vec{T}(t) = \[ T_1(t), \ T_2(t), ..., \ T_{N+1}(t) \]
+$$
+
+And let us also define a matrix $M_R$ in the following way:
+
+$$
+M_R = \frac{dt}{m_i \cdot c_i \cdot R_{ij}} \quad \forall i, j \in \[0, \ N+1\]
+$$
+
+With these new objects we can now rewrite the above equation in the following way
+
+$$
+\vec{T}(t + dt) = \vec{T}(t) \odot (\vec{1} - M_R \cdot \vec{1}) + M_R \cdot \vec{T}(t)
+$$
+
+Where $\odot$ represents the **Hadamard product** (or element-wise product) of matrices. This final and compact formulation makes great use of vectors and matrices, and for this
+reason is highly parallelizable. 
+
+This is the general formulation that we will use to solve our problem. As we can see, determining the temperature of a given object at a given time requires us to compute $o(N)$ multiplications, while the evolution of the whole system requires us to compute $o(N^2 \cdot D)$ iterations, where N is the cardinality of the set of objects and D is the total number of infinitesimal intervals of time that make up our simulation. Generally speaking, the numerical approach doesn't seem to scale well. Moreover, the numerical method used to approximate the functions is very simple and it's known for its instability, an issue that we will adress later on.
+
+However, the vectorized representation has an important advantage: it allows algorithmic optimization techniques to be implemented, since many calculations can be parallelized
 by modern processors. So, before giving up with this possible solution, let's give modern parallel computing a chance.
 
 
@@ -348,8 +383,8 @@ by modern processors. So, before giving up with this possible solution, let's gi
 
 
 
-## First attempt: standard python
-The first way we can try to implement the equation above is by using the python standard library. This first approach, that we will call standard, is implemented in the `standard_n_objects.py` file, under the `optimization` directory, where a little GUI helps us to visualize the temperature trend of the objects.
+## First attempt: plain python
+The first way we can try to implement the equation above is by using the python standard library. This first approach, that we will call plain, is implemented in the `standard_n_objects.py` file, under the `optimization` directory, where a little GUI helps us to visualize the temperature trend of the objects.
 
 The core of the algorithm is this function here
 ```python
@@ -404,8 +439,14 @@ The `numpy_algorithm` function takes the initial state of the system as input an
 where only the diagonal of the resulting matrix is relevant, and represents the scalar product. This approach is not perfect, since many useless calculations are being made, but it's the simplest algorithm I could come up with.
 
 
+
+
+
+
+
+
 ## Third attempt: totally vectorized numpy
-The performance of the numpy library could be furtherly improved by transforimng the actual mathematical formulation in a more vectorized one.
+The performance of the numpy library could be furtherly improved by transforming the actual mathematical formulation in a more vectorized one.
 To do so, let's consider again our latest equation: 
 
 $$
