@@ -11,7 +11,6 @@ With this repo I'd like to show you some of my (very simple) results about my st
 - [Optimizing the numerical solution](#optimizing-the-numerical-solution)
   - [First attempt: plain python](#first-attempt-plain-python)
   - [Second attempt: numpy](#second-attempt-numpy)
-  - [Third attempt: totally vectorized numpy](#third-attempt-totally-vectorized-numpy)
   - [Standard vs Numpy approach: a benchmark](#standard-vs-numpy-approach-a-benchmark)
 
 
@@ -317,7 +316,8 @@ Our intention though is to solve a **system** of interdependent differential equ
 </p>
 
 From here, we easily realise that the computation to be performed at each layer is nothing more than a scalar product between the vector of temperatures of the objects at instant $t$ and the vector of thermal resistances of 
-that object with respect to all the others. Indeed, we observe that
+that object with respect to all the others. This is also the reason why the Forward Euler Method is called **explicit** method, because it only needs the knowledge of the system at a certain instant of time $t$ to determine its future evolution.
+Indeed, we observe that
 
 $$
 T_i(t + dt) = T_i(t) - (\frac{T_i(t) - T_1(t)}{R_{i1} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_1(t)}{R_{i2} \cdot m_i \cdot c_i} + \ldots + \frac{T_i(t) - T_N(t)}{R_{iN} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_{env}}{R_{i-env} \cdot m_i \cdot c_i}) \cdot dt
@@ -384,33 +384,31 @@ by modern processors. So, before giving up with this possible solution, let's gi
 
 
 ## First attempt: plain python
-The first way we can try to implement the equation above is by using the python standard library. This first approach, that we will call plain, is implemented in the `standard_n_objects.py` file, under the `optimization` directory, where a little GUI helps us to visualize the temperature trend of the objects.
+The first way we can try to implement the equation above is by using the python standard library. This first approach, that we will call plain, is implemented in the `plain_n_objects.py` file, under the `optimization` directory, where a little GUI helps us to visualize the temperature trend of the objects.
 
 The core of the algorithm is this function here
 ```python
-def standard_algorithm(T_actual, R_actual, m_actual, c_actual):
+def plain_algorithm(T_initial, Mr):
     T_time_matrix = []
-    T_time_matrix.append(T_actual)
+    T_time_matrix.append(T_initial)
+
+    ones_vector = [1 for _ in range(len(T_initial))]
+    vec_1 = matmult(Mr, list(zip(ones_vector)))
 
     for i in range(1, NUM_INTERVALS):
+        T_actual = T_time_matrix[i-1]
+        vec_2 = matmult(Mr, list(zip(T_actual)))
 
-        res_actual = []
+        T_new = []
+        for j in range(0, OBJECT_NUMBER + 1):
+            T_new.append(T_actual[j] * (1 - list(zip(*vec_1))[0][j]) + list(zip(*vec_2))[0][j])
 
-        for j in range(0, OBJECT_NUMBER):
-            R_dot = [1 / R_actual[j][n] for n in range(0, OBJECT_NUMBER + 1)]
-            T_dot = [T_actual[j] - T_actual[n] for n in range(0, OBJECT_NUMBER + 1)]
-
-            res_actual.append(T_actual[j] - DT / (m_actual[j] * c_actual[j]) * dot_product(R_dot, T_dot))
-
-        res_actual.append(T_actual[OBJECT_NUMBER])
-        T_time_matrix.append(res_actual)
-
-        T_actual = res_actual
+        T_time_matrix.append(T_new)
 
     return T_time_matrix
 ```
-The `standard_algorithm` function takes the initial state of the system as input, iterates the dot product (using the function `dot_product`) as specified in the formula, and stores each temperature at each instant of time in a matrix, which is eventually returned.
-The syntax of this algorithm is simple (and not very clean), but it is enough to understand how our formula can be roughly translated into a programming language to run a simple simulation script.
+The `plain_algorithm` function takes the initial temperatures of the system and the matrix $M_R$ as input, iterates the vector operations (using the function `matmult` for matrix multiplication) as specified in the formula, and stores each temperature at each instant of time in a matrix, which is eventually returned.
+The syntax of this algorithm is simple (and not very clean), but it is enough to understand how our formula can be roughly translated into a program to run a simple simulation script.
 
 
 
@@ -419,74 +417,9 @@ The syntax of this algorithm is simple (and not very clean), but it is enough to
 ## Second attempt: numpy
 Let's now try to include a bit of parallel programming in our algorithm by using a well known python library for vector operations: **numpy**. As before, the numpy approach is implemented in the `numpy_n_objects.py` file, under the `optimization` directory, with a simple GUI that helps to visualize the simulation.
 
-The core of the numpy approach is this function
+Here is a breakdown of the core numpy algorithm:
 ```python
-def numpy_algorithm(T_actual, R_actual, m_actual, c_actual):
-    T_time_matrix = np.empty((NUM_INTERVALS, OBJECT_NUMBER + 1))
-    T_time_matrix[0] = T_actual
-
-    R_inv_dot = 1 / R_actual[:, :]
-
-    for i in range(1, NUM_INTERVALS):
-
-        T_dot = np.resize(T_time_matrix[i - 1], (OBJECT_NUMBER + 1, OBJECT_NUMBER + 1)).T - T_time_matrix[i - 1]
-        dot_result = T_time_matrix[i - 1] - (DT / (m_actual * c_actual)) * np.diag(R_inv_dot @ T_dot.T)
-        T_time_matrix[i] = dot_result
-
-    return T_time_matrix
-```
-The `numpy_algorithm` function takes the initial state of the system as input and then uses matrix algebra and built-in functions to compute the final result. In particular, I thought of the scalar product as a matrix product between the resistance matrix and the normalised temperature matrix, 
-where only the diagonal of the resulting matrix is relevant, and represents the scalar product. This approach is not perfect, since many useless calculations are being made, but it's the simplest algorithm I could come up with.
-
-
-
-
-
-
-
-
-## Third attempt: totally vectorized numpy
-The performance of the numpy library could be furtherly improved by transforming the actual mathematical formulation in a more vectorized one.
-To do so, let's consider again our latest equation: 
-
-$$
-T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N + 1}\frac{1}{R_{ij}} \cdot (T_i(t) - T_j(t)) \ )
-$$
-
-From here, it is possible to work a bit on the summation to extract the term $T_i(t)$
-
-$$
-T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N + 1}\frac{T_i(t)}{R_{ij}} - \sum_{j=1}^{N + 1}\frac{T_j(t)}{R_{ij}} \ )
-$$
-
-$$
-T_i(t + dt) = T_i(t) (1 - \sum_{j=1}^{N + 1}\frac{dt}{m_i \cdot c_i \cdot R_{ij}}) + \sum_{j=1}^{N + 1}\frac{dt}{m_i \cdot c_i \cdot R_{ij}} \cdot T_j(t)
-$$
-
-With this final revisitation, we have split the contribution of $T_i(t)$ from the contribution of the other $T_j(t)$. Now, with a bit of immagination it is possible to
-rewrite this equation in terms of vectors and matrices products. For this purpose, let us define $\vec{T}$(t) as a vector containing all the temperatures of objects at istant t, that is
-
-$$
-\vec{T}(t) = \[ T_1(t), \ T_2(t), ..., \ T_{N+1}(t) \]
-$$
-
-And let us also define a matrix $M_R$ in the following way:
-
-$$
-M_R = \frac{dt}{m_i \cdot c_i \cdot R_{ij}} \quad \forall i, j \in \[0, \ N+1\]
-$$
-
-With these new objects we can now rewrite the above equation in the following way
-
-$$
-\vec{T}(t + dt) = \vec{T}(t) \odot (\vec{1} - M_R \cdot \vec{1}) + M_R \cdot \vec{T}(t)
-$$
-
-Where $\odot$ represents the **Hadamard product** (or element-wise product) of matrices. This final and compact formulation makes great use of vectors and matrices, and for this
-reason is highly parallelizable. This equation is implemented in the `vectorized_n_objects.py` file under the `optimization` directory. Here is a brief code snippet
-that implements the vectorized formula:
-```python
-def vectorized_algorithm(T_initial, Mr):
+def numpy_algorithm(T_initial, Mr):
     T_time_matrix = np.empty((NUM_INTERVALS, OBJECT_NUMBER + 1))
     T_time_matrix[0] = T_initial
 
@@ -506,14 +439,15 @@ def vectorized_algorithm(T_initial, Mr):
 Let us now put the two described algorithms to the test, and observe their weaknesses and strengths. In the file `benchmark_standard_numpy.py` is a simple script comparing the two approaches, which tests them by looking at the execution time they take as the number of objects changes 
 or the size of the simulation interval increases. The output of the script should look something like this
 
-![benchmark_noShareY](https://github.com/leonardobertolani/temperatures/assets/102794282/42c15d04-cb41-46c2-8f45-5eb868f9166b)
+![plain_numpy](https://github.com/user-attachments/assets/bf0284ab-b72b-4b12-bc2f-2d4ab321e52a)
 
 The reported result is interesting: as far as the script in standard python is concerned, it presents a quadratic curve with respect to the number of objects, and a linear growth with respect to the duration of the interval, as we had already predicted. However, something changes in the curves of the numpy script: although it too has
 linear growth with respect to the duration of the interval, the complexity with respect to the number of objects now seems to be very close to $o(1)$: this is where the parallel calculation has its way.
 
 Furthermore, if we put the y-axis of the two graphs on the same scale, we can see that the real bottleneck of the whole computation is given by the number of objects.
 
-![benchmark](https://github.com/leonardobertolani/temperatures/assets/102794282/072b1d59-064f-42e2-ae1b-ea8584625fe9)
+![plain_numpy_same_y](https://github.com/user-attachments/assets/20b2e6ee-1bb7-4b8c-bb95-6695293388fb)
+
 
 In fact, as we can see, even if numpy manages to do it better, the two curves rise at the same rate, and the execution time elapsed for the duration of the simulation is negligible in relation to the execution time spent on the objects.
 
