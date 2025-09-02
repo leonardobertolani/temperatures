@@ -463,18 +463,24 @@ $$
 T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N + 1}\frac{1}{R_{ij}} \cdot (T_i(t) - T_j(t)) \ ) \quad \quad \quad T_{N+1} = T_{env}, \quad m_{N+1} = \infty, \quad c_{N+1} = \infty
 $$
 
-Our intention is to derive from this equation the *heat diffusion equation*, a well known **partial differential equation** that describes how the heat flows into objects. To this purpose, we will consider a three-dimensional cube $\Omega$ as the object of our study, and we will describe its structure through a graph, where each node represents an *infinitesimal* part of it.
+Our intention is to derive from this equation the *heat diffusion equation*, a well known **partial differential equation** that describes how the heat flows into objects. To this purpose, we need to arrange our graph model in such a way that it can be described by a cartesian space. We will therefor consider the following three-dimensional structure below, where each node represents an *infinitesimal* part of the space, and use it to represent the structure of a general object $\Omega$.
 
-{image whole cube}
-
+<p align="center">
+<img width="600" height="400" alt="image" src="https://github.com/user-attachments/assets/ffdd8487-3232-461c-8b08-4eed6d66766a" />
+<\p>
+  
 Let's now take just a small piece of it, and add some cartesian references: our intention is to convert our discrete graph-based representation into a continuous cartesian-based one, and to do this we must state that each node dists from another an infinitesimal distance $dx$ on the x-axis and $dy$ on the y-axis.
 
-{image just one piece with axis and dx dy}
-
+<p align="center">
+<img width="600" height="400" alt="image" src="https://github.com/user-attachments/assets/d4c48be5-615b-4975-b07d-daf8ffcfdaa4" />
+<\p>
+  
 Also, an alternative representation of this structure is the one that follows, in which the nodes are put inside boxes of dimensions $dx \cdot dy \cdot dz$:
 
-{image with cubes touching each other}
 
+<p align="center">
+<img width="600" height="400" alt="image" src="https://github.com/user-attachments/assets/3532bfd5-f983-4a3b-911e-593b29a641a2" />
+<\p>
 
 What we are basically doing is giving a precise structure to our graph, making the nodes reflect the position of each point of $\mathbb{R}^3$. Since now the graph lives in a structured space it is necessary to also add spacial references to the function we've been using: $T(t) \rightarrow T(t, x, y, z)$. Also note that the mass and specific heat are now relative to a single object. Based on this structure, the equation above can be rewritten as:
 
