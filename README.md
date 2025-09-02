@@ -321,6 +321,14 @@ T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N + 1}\frac{1}{R
 $$
 
 
+
+
+
+
+
+
+
+
 # Optimizing the numerical solution
 Now that we have established a general criterion for studying the free evolution
 of the system over time, let us try different algorithmic approaches to improve it.
@@ -443,3 +451,65 @@ Now let's try to push numpy to its limits and see how much parallel execution ca
 
 This third set of graphs shows us that the quadratic dependence on the number of objects is still present in our code, and it couldn't be otherwise, since the mathematical structure we have chosen implies a quadratic dependence. The most important information we can derive from the graph is the better degree of optimization of the second approach compared to the first, reminding us of the importance of using specific libraries such as numpy for computations where performance is crucial, rather than reinventing the wheel with our own code.
 
+
+
+# A sprinkle of LSD
+Now that we have discussed the algorithmic approach and we have accelerated it through matrix computation, it is time to delve into the main mathematical outcomes of this work and see how deep the rabbit hole goes. 
+
+## Derivation of the heat diffusion equation in $\mathbb{R}^3$
+Let's take again the final general formulation we came up with:
+
+$$
+T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N + 1}\frac{1}{R_{ij}} \cdot (T_i(t) - T_j(t)) \ ) \quad \quad \quad T_{N+1} = T_{env}, \quad m_{N+1} = \infty, \quad c_{N+1} = \infty
+$$
+
+Our intention is to derive from this equation the *heat diffusion equation*, a well known **partial differential equation** that describes how the heat flows into objects. To this purpose, we will consider a three-dimensional cube $\Omega$ as the object of our study, and we will describe its structure through a graph, where each node represents an *infinitesimal* part of it.
+
+{image whole cube}
+
+Let's now take just a small piece of it, and add some cartesian references: our intention is to convert our discrete graph-based representation into a continuous cartesian-based one, and to do this we must state that each node dists from another an infinitesimal distance $dx$ on the x-axis and $dy$ on the y-axis.
+
+{image just one piece with axis and dx dy}
+
+Also, an alternative representation of this structure is the one that follows, in which the nodes are put inside boxes of dimensions $dx \cdot dy \cdot dz$:
+
+{image with cubes touching each other}
+
+
+What we are basically doing is giving a precise structure to our graph, making the nodes reflect the position of each point of $\mathbb{R}^3$. Since now the graph lives in a structured space it is necessary to also add spacial references to the function we've been using: $T(t) \rightarrow T(t, x, y, z)$. Also note that the mass and specific heat are now relative to a single object. Based on this structure, the equation above can be rewritten as:
+
+$$
+T(t + dt, x, y, z) = T(t, x, y, z) - \frac{dt}{m \cdot c} ( \ \frac{T(t, x, y, z) - T(t, x + dx, y, z)}{R_{dx+}} + \frac{T(t, x, y, z) - T(t, x - dx, y, z)}{R_{dx-}} + \frac{T(t, x, y, z) - T(t, x, y + dy, z)}{R_{dy+}} + \frac{T(t, x, y, z) - T(t, x, y - dy, z)}{R_{dy-}} + \frac{T(t, x, y, z) - T(t, x, y, z + dz)}{R_{dz+}} + \frac{T(t, x, y, z) - T(t, x, y, z - dz)}{R_{dz-}} \ )
+$$
+
+Further, we observe that:
+
+$$
+m = \rho (x, y, z) \\ dx dy dz, \quad R = \frac{l}{\lambda \cdot A} \rightarrow R_{dx} = \frac{dx}{\lambda \cdot dy dz}, \quad R_{dy} = \frac{dy}{\lambda \cdot dx dz}, \quad R_{dz} = \frac{dz}{\lambda \cdot dx dy}
+$$
+
+Thus we get:
+
+$$
+T(t + dt, x, y, z) = T(t, x, y, z) - \frac{dt \cdot \lambda}{\rho (x, y, z) \cdot c} ( \ \frac{T(t, x, y, z) - T(t, x + dx, y, z)}{dx^2} + \frac{T(t, x, y, z) - T(t, x - dx, y, z)}{dx^2} + \frac{T(t, x, y, z) - T(t, x, y + dy, z)}{dy^2} + \frac{T(t, x, y, z) - T(t, x, y - dy, z)}{dy^2} + \frac{T(t, x, y, z) - T(t, x, y, z + dz)}{dz^2} + \frac{T(t, x, y, z) - T(t, x, y, z - dz)}{dz^2} \ )
+$$
+
+and then:
+
+$$
+\frac{T(t + dt, x, y, z) - T(t, x, y, z)}{dt} = - \frac{\lambda}{\rho (x, y, z) \cdot c} ( \ \frac{2T(t, x, y, z) - T(t, x + dx, y, z) - T(t, x - dx, y, z)}{dx^2} + \frac{2T(t, x, y, z) - T(t, x, y + dy, z) - T(t, x, y - dy, z)}{dy^2} + \frac{2T(t, x, y, z) - T(t, x, y, z + dz) - T(t, x, y, z - dz)}{dz^2} \ )
+$$
+
+At this point we recall that, given a generic function $f: \mathbb{R}^4 \rightarrow \mathbb{R}$, the second order derivative with respect to one component can be approximated as:
+
+$$
+\frac{\partial^2 f(x_1, x_2, x_3, x_4)}{\partial x_1^2} = \frac{f(x_1 + dx, x_2, x_3, x_4) - 2f(x_1, x_2, x_3, x_4) + f(x_1 - dx, x_2, x_3, x_4)}{dx^2}
+$$
+
+By distributing the minus sign inside the parenthesis, it is possible to find this exact structure for each variable. Also, the left-hand term represent the partial derivative of the function $T(t, x, y, z)$ with respect to the time, so we finally find:
+
+$$
+\frac{\partial T(t, x, y, z)}{\partial t} = \frac{\lambda}{\rho (x, y, z) \cdot c} ( \ \frac{\partial^2 T(t, x, y, z)}{\partial x^2} + \frac{\partial^2 T(t, x, y, z)}{\partial y^2} + \frac{\partial^2 T(t, x, y, z)}{\partial z^2} \ )
+$$
+
+Which represents the **heat diffusion differential equation** in $\mathbb{R}^3$ space for a generic object $\Omega$ with density function $\rho(x, y, z)$, specific heat $c$ and constant thermal conductivity $\lambda$. 
