@@ -284,11 +284,11 @@ Not every object should exchange heat with all others. For instance, object 1 ma
 <img width="595" alt="image" src="https://github.com/leonardobertolani/temperatures/assets/102794282/9807af79-4f09-44a8-87e2-ac215c8cedfc">
 </p>
 
-Under this point of view, the temperature at time $t + dt$ of a generic object $i \in N$ with mass $m_i$ and specific heat $c_i$, connected to a set $J \subset N$ of objects ${1, ..., j}$ via thermal resistances
-$R_{ij}$, can be calculated as
+Under this point of view, the temperature at time $t + dt$ of a generic object $i \in N$ with mass $m_i$ and specific heat $c_i$, connected to a set $J \subset N$ of objects ${1, ..., j}$ and to an environment via thermal resistances
+$R_{ij}$ and $R_{i-env}$, can be calculated as
 
 $$
-T_i(t + dt) = T_i(t) - (\frac{T_i(t) - T_1(t)}{R_{i1} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_2(t)}{R_{i2} \cdot m_i \cdot c_i} + \ldots + \frac{T_i(t) - T_N(t)}{R_{iN} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_{env}}{R_{i-env} \cdot m_i \cdot c_i}) \cdot dt
+T_i(t + dt) = T_i(t) - (\frac{T_i(t) - T_1(t)}{R_{i1} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_2(t)}{R_{i2} \cdot m_i \cdot c_i} + \ldots + \frac{T_i(t) - T_j(t)}{R_{ij} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_{env}}{R_{i-env} \cdot m_i \cdot c_i}) \cdot dt
 $$
 
 where $\forall i \in N, R_{ii} = 1$ by our convention. As we have seen, the numerical strategy found consists in using the state of the system
@@ -323,9 +323,9 @@ $$
 
 # Optimizing the numerical solution
 Now that we have established a general criterion for studying the free evolution
-of the system over time, let us try different algorithmic approaches to actually implement it.
+of the system over time, let us try different algorithmic approaches to improve it.
 
-This formulation could be furtherly improved by transforming it in a more vectorized one.
+The previous formulation we found could be furtherly improved by transforming it in a more vectorized one.
 To do so, let's work a bit on the summation to extract the term $T_i(t)$
 
 $$
@@ -358,7 +358,7 @@ $$
 Where $\odot$ represents the **Hadamard product** (or element-wise product) of matrices. This final and compact formulation makes great use of vectors and matrices, and for this
 reason is highly parallelizable. 
 
-This is the general formulation that we will use to solve our problem. As we can see, determining the temperature of a given object at a given time requires us to compute $o(N)$ multiplications, while the evolution of the whole system requires us to compute $o(N^2 \cdot D)$ iterations, where N is the cardinality of the set of objects and D is the total number of infinitesimal intervals of time that make up our simulation. Generally speaking, the numerical approach doesn't seem to scale well. Moreover, the numerical method used to approximate the functions is very simple and it's known for its instability, an issue that we will adress later on.
+This is the general formulation that we will use to solve our problem. As we can see, determining the temperature of a given object at a given time requires us to compute $o(N)$ multiplications, while the evolution of the whole system requires us to compute $o(N^2 \cdot D)$ iterations, where N is the cardinality of the set of objects and D is the total number of infinitesimal intervals of time that make up our simulation. Generally speaking, the Forward Euler approach doesn't seem to scale well, and it is also known for its simplicity and instability, an issue that we will adress later on.
 
 However, the vectorized representation has an important advantage: it allows algorithmic optimization techniques to be implemented, since many calculations can be parallelized
 by modern processors. So, before giving up with this possible solution, let's give modern parallel computing a chance.
