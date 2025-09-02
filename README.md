@@ -284,43 +284,24 @@ Not every object should exchange heat with all others. For instance, object 1 ma
 <img width="595" alt="image" src="https://github.com/leonardobertolani/temperatures/assets/102794282/9807af79-4f09-44a8-87e2-ac215c8cedfc">
 </p>
 
-This concept presents a more **scalable** and **efficient** approach to the problem of finding the temperature variations over time, and represent the generalization of the previous exercises.
-
-
-
-
-
-
-
-
-
-# Optimizing the numerical solution
-Now that we have established a general criterion for studying the free evolution
-of the system over time, let us try different algorithmic approaches to actually implement it.
-
-As we have seen, the numerical strategy found consists in using the state of the system
-at time $t$ to determine the future situation after a very short time instant $dt$. In fact, for what 
-we have deduced, the temperature of a generic object $i \in N$ with mass $m_i$ and specific heat $c_i$, connected to a set $J \subset N$ of objects ${1, ..., j}$ via thermal resistances
+Under this point of view, the temperature at time $t + dt$ of a generic object $i \in N$ with mass $m_i$ and specific heat $c_i$, connected to a set $J \subset N$ of objects ${1, ..., j}$ via thermal resistances
 $R_{ij}$, can be calculated as
 
 $$
-T_i(t + dt) = T_i(t) - (\frac{T_i(t) - T_1(t)}{R_{i1} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_1(t)}{R_{i2} \cdot m_i \cdot c_i} + \ldots + \frac{T_i(t) - T_N(t)}{R_{iN} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_{env}}{R_{i-env} \cdot m_i \cdot c_i}) \cdot dt
+T_i(t + dt) = T_i(t) - (\frac{T_i(t) - T_1(t)}{R_{i1} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_2(t)}{R_{i2} \cdot m_i \cdot c_i} + \ldots + \frac{T_i(t) - T_N(t)}{R_{iN} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_{env}}{R_{i-env} \cdot m_i \cdot c_i}) \cdot dt
 $$
 
-where $\forall i \in N, R_{ii} = 1$ by our convention. This result is also known in numerical analysis as **Forward Euler Method**, and it is the most basic method for numerically solve a complex differential equation.
+where $\forall i \in N, R_{ii} = 1$ by our convention. As we have seen, the numerical strategy found consists in using the state of the system
+at time $t$ to determine the future situation after a very short time instant $dt$. This concept presents a more **scalable** and **efficient** approach to the problem of finding the temperature variations over time, and represent the generalization of the previous exercises. 
 
-Our intention though is to solve a **system** of interdependent differential equations (one for each object), which, refering to the previous numerical approach, can also be represented in this way
-
-<p align="center">
-  <img width="635" alt="temp_network" src="https://github.com/user-attachments/assets/202e39f9-e628-4708-9342-d71fb29380e7">
-</p>
+This result is also known in numerical analysis as **Forward Euler Method**, and it is the most basic method for numerically solve a complex differential equation.
 
 From here, we easily realise that the computation to be performed at each layer is nothing more than a scalar product between the vector of temperatures of the objects at instant $t$ and the vector of thermal resistances of 
 that object with respect to all the others. This is also the reason why the Forward Euler Method is called **explicit** method, because it only needs the knowledge of the system at a certain instant of time $t$ to determine its future evolution.
 Indeed, we observe that
 
 $$
-T_i(t + dt) = T_i(t) - (\frac{T_i(t) - T_1(t)}{R_{i1} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_1(t)}{R_{i2} \cdot m_i \cdot c_i} + \ldots + \frac{T_i(t) - T_N(t)}{R_{iN} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_{env}}{R_{i-env} \cdot m_i \cdot c_i}) \cdot dt
+T_i(t + dt) = T_i(t) - (\frac{T_i(t) - T_1(t)}{R_{i1} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_2(t)}{R_{i2} \cdot m_i \cdot c_i} + \ldots + \frac{T_i(t) - T_N(t)}{R_{iN} \cdot m_i \cdot c_i} + \frac{T_i(t) - T_{env}}{R_{i-env} \cdot m_i \cdot c_i}) \cdot dt
 $$
 
 $$
@@ -331,14 +312,18 @@ $$
 T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N}\frac{1}{R_{ij}} \cdot (T_i(t) - T_j(t)) + \frac{T_i(t) - T_{env}}{R_{i-env}} \ )
 $$
 
-The summation we have extracted represents a scalar product between the vector of the normalised temperatures with respect to object $i$ and the vector
-of the inverse of the thermal resistances with respect to object $i$. Furthermore, we realise that the heat contribution given by the environment has the same mathematical structure as the other objects, therefore we can treat the environment as an object to all intents and purposes and include it in the summation, but remembering that its temperature must remain constant,
+The summation we have extracted represents a scalar product between the **vector of the normalised temperatures with respect to object $i$** and the **vector
+of the inverse of the thermal resistances with respect to object $i$**. Furthermore, we realise that the heat contribution given by the environment has the same mathematical structure as the other objects, therefore we can treat the environment as an object to all intents and purposes and include it in the summation, but remembering that its temperature must remain constant,
 and thus imposing that $m_{env} = \infty$ and $c_{env} = \infty$.
 
 $$
-T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N + 1}\frac{1}{R_{ij}} \cdot (T_i(t) - T_j(t)) \ ) \quad , \quad T_{N+1} = T_{env} = c
+T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N + 1}\frac{1}{R_{ij}} \cdot (T_i(t) - T_j(t)) \ ) \quad \quad \quad T_{N+1} = T_{env}, \quad m_{N+1} = \infty, \quad c_{N+1} = \infty
 $$
 
+
+# Optimizing the numerical solution
+Now that we have established a general criterion for studying the free evolution
+of the system over time, let us try different algorithmic approaches to actually implement it.
 
 This formulation could be furtherly improved by transforming it in a more vectorized one.
 To do so, let's work a bit on the summation to extract the term $T_i(t)$
