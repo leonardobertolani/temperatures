@@ -12,6 +12,10 @@ With this repo I'd like to show you some of my (very simple) results about my st
   - [First attempt: plain python](#first-attempt-plain-python)
   - [Second attempt: numpy](#second-attempt-numpy)
   - [Standard vs Numpy approach: a benchmark](#standard-vs-numpy-approach-a-benchmark)
+- [A sprinkle of LSD](#a-sprinkle-of-lsd)
+  - [Derivation of the heat diffusion differential equation$](#derivation-of-the-heat-diffusion-differential-equation$)
+  - [Similarities between heat diffusion and Neural Networks](#similarities-between-heat-diffusion-and-neural-networks)
+- [Web Demo](#web-demo)
 
 
 # Tackling the problem
@@ -456,7 +460,7 @@ This third set of graphs shows us that the quadratic dependence on the number of
 # A sprinkle of LSD
 Now that we have discussed the algorithmic approach and we have accelerated it through matrix computation, it is time to delve into the main mathematical outcomes of this work and see how deep the rabbit hole goes. 
 
-## Derivation of the heat diffusion equation in $\mathbb{R}^3$
+## Derivation of the heat diffusion differential equation
 Let's take again the final general formulation we came up with:
 
 $$
@@ -467,20 +471,20 @@ Our intention is to derive from this equation the *heat diffusion equation*, a w
 
 <p align="center">
 <img width="600" height="400" alt="image" src="https://github.com/user-attachments/assets/ffdd8487-3232-461c-8b08-4eed6d66766a" />
-<\p>
+</p>
   
 Let's now take just a small piece of it, and add some cartesian references: our intention is to convert our discrete graph-based representation into a continuous cartesian-based one, and to do this we must state that each node dists from another an infinitesimal distance $dx$ on the x-axis and $dy$ on the y-axis.
 
 <p align="center">
 <img width="600" height="400" alt="image" src="https://github.com/user-attachments/assets/d4c48be5-615b-4975-b07d-daf8ffcfdaa4" />
-<\p>
+</p>
   
 Also, an alternative representation of this structure is the one that follows, in which the nodes are put inside boxes of dimensions $dx \cdot dy \cdot dz$:
 
 
 <p align="center">
 <img width="600" height="400" alt="image" src="https://github.com/user-attachments/assets/3532bfd5-f983-4a3b-911e-593b29a641a2" />
-<\p>
+</p>
 
 What we are basically doing is giving a precise structure to our graph, making the nodes reflect the position of each point of $\mathbb{R}^3$. Since now the graph lives in a structured space it is necessary to also add spacial references to the function we've been using: $T(t) \rightarrow T(t, x, y, z)$. Also note that the mass and specific heat are now relative to a single object. Based on this structure, the equation above can be rewritten as:
 
