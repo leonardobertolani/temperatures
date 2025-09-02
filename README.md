@@ -13,7 +13,7 @@ With this repo I'd like to show you some of my (very simple) results about my st
   - [Second attempt: numpy](#second-attempt-numpy)
   - [Standard vs Numpy approach: a benchmark](#standard-vs-numpy-approach-a-benchmark)
 - [A sprinkle of LSD](#a-sprinkle-of-lsd)
-  - [Derivation of the heat diffusion differential equation$](#derivation-of-the-heat-diffusion-differential-equation$)
+  - [Derivation of the heat diffusion differential equation](#derivation-of-the-heat-diffusion-differential-equation)
   - [Similarities between heat diffusion and Neural Networks](#similarities-between-heat-diffusion-and-neural-networks)
 - [Web Demo](#web-demo)
 
