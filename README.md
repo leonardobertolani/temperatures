@@ -11,7 +11,8 @@ With this repo I'd like to show you some of my (very simple) results about my st
 - [Optimizing the numerical solution](#optimizing-the-numerical-solution)
   - [First attempt: plain python](#first-attempt-plain-python)
   - [Second attempt: numpy](#second-attempt-numpy)
-  - [Standard vs Numpy approach: a benchmark](#standard-vs-numpy-approach-a-benchmark)
+  - [Third attempt: vectorized algorithm](#third-attempt-vectorized-algorithm)
+  - [Algorithm comparisons](#algorithm-comparisons)
 - [A sprinkle of LSD](#a-sprinkle-of-lsd)
   - [Derivation of the heat diffusion differential equation](#derivation-of-the-heat-diffusion-differential-equation)
   - [Similarities between heat diffusion and Neural Networks](#similarities-between-heat-diffusion-and-neural-networks)
@@ -504,28 +505,35 @@ def vectorized_algorithm(T_vector, R_matrix, m_vector, c_vector, environment=Tru
 
 
 
-## Standard vs Numpy approach: a benchmark
-Let us now put the two described algorithms to the test, and observe their weaknesses and strengths. In the file `benchmark_standard_numpy.py` is a simple script comparing the two approaches, which tests them by looking at the execution time they take as the number of objects changes 
-or the size of the simulation interval increases. The output of the script should look something like this
+## Algorithm comparisons
+Let us now put the described algorithms to the test, and observe their weaknesses and strengths. In the file `benchmark.py` is a simple script comparing the three approaches, which tests them by looking at the execution time they take as the number of objects or the size of the simulation interval increases. The output of the script should look something like this
 
-![plain_numpy](https://github.com/user-attachments/assets/bf0284ab-b72b-4b12-bc2f-2d4ab321e52a)
+<p align="center">
+<img width="800" height="640" alt="benchmark_3alg" src="https://github.com/user-attachments/assets/c13661c8-42cd-4aac-8cbd-fa994e713587" />
+</p>
 
-The reported result is interesting: as far as the script in standard python is concerned, it presents a quadratic curve with respect to the number of objects, and a linear growth with respect to the duration of the interval, as we had already predicted. However, something changes in the curves of the numpy script: although it too has
-linear growth with respect to the duration of the interval, the complexity with respect to the number of objects now seems to be very close to $o(1)$: this is where the parallel calculation has its way.
+The reported result is interesting: the plain python script presents a quadratic curve with respect to the number of objects, and a linear growth with respect to the duration of the interval, as we had already predicted. However, this is not the case for the other two algorithms: although they show a linear growth with respect to the duration of the interval, the complexity with respect to the number of objects seems to be very close to $o(1)$: this is where the parallel calculation has its way.
 
-Furthermore, if we put the y-axis of the two graphs on the same scale, we can see that the real bottleneck of the whole computation is given by the number of objects.
+We can then think of comparing the two parallel algorithms, and this is what comes out:
 
-![plain_numpy_same_y](https://github.com/user-attachments/assets/20b2e6ee-1bb7-4b8c-bb95-6695293388fb)
+<p align="center">
+<img width="800" height="640" alt="benchmark_2alg" src="https://github.com/user-attachments/assets/e23372f9-5a12-40b2-b20d-bce9b96f51c9" />
+</p>
+
+Also in this case we see the quadratic behaviour emerging from the numpy algorithm. Note that, even though the number of objects quadrupled in this scenario, the vectorized approach remained unaffected.
+
+Now let's try to push the vectorized algorithm to its limits and see how much parallel execution can bear. Let's force the simulation with up to $2000$ objects (more than three times than before), and with up to 1 million seconds of duration. The trend is the following:
+
+<p align="center">
+<img width="800" height="640" alt="benchmark_1alg" src="https://github.com/user-attachments/assets/dccc8332-d430-4b02-8898-e02d582fba8e" />
+</p>
+
+This third set of graphs shows us that the quadratic dependence on the number of objects is still present in our code, and it couldn't be otherwise, since the mathematical structure we have chosen implies a quadratic dependence. The most important information we can derive from the graph is the better degree of optimization of the third approach compared to all the others, reminding us of the importance of using specific libraries such as numpy for computations where performance is crucial, rather than reinventing the wheel with our own code.
 
 
-In fact, as we can see, even if numpy manages to do it better, the two curves rise at the same rate, and the execution time elapsed for the duration of the simulation is negligible in relation to the execution time spent on the objects.
-
-Now let's try to push numpy to its limits and see how much parallel execution can bear. To do this, we'll modify the `benchmark_standard_numpy.py` script to ask numpy to determine the evolution of the system when made up of up to 600 objects (first graph), and when the duration of the simulation is extended up to $600 000 s$ (about a week, second graph).
-
-![benchmark_pureNumpy3](https://github.com/leonardobertolani/temperatures/assets/102794282/d1b5da92-8959-4105-b6c9-b8b3a158833e)
 
 
-This third set of graphs shows us that the quadratic dependence on the number of objects is still present in our code, and it couldn't be otherwise, since the mathematical structure we have chosen implies a quadratic dependence. The most important information we can derive from the graph is the better degree of optimization of the second approach compared to the first, reminding us of the importance of using specific libraries such as numpy for computations where performance is crucial, rather than reinventing the wheel with our own code.
+
 
 
 
