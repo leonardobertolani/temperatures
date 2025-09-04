@@ -67,7 +67,7 @@ $$T(t) = (T_{init} - T_{env})e^{-\frac{1}{R \cdot m \cdot c}t} + T_{env}$$
 
 This function goes to $T_{env}$ when time goes to infinity, and equals $T_{init}$ at the starting point $T(0)$. It seems to work fine! 
 
-Starting from this analytical solution I wrote the `object_environment.py` python script, that simply reads the properties of the system from some input-boxes and then plot the curve of the function.
+Starting from this analytical solution I wrote the `basic-scenarios/object_environment.py` python script, that through a simple GUI reads the properties of the system and then plots the curve of the function.
 
 
 
@@ -207,7 +207,7 @@ $$
   T_2(t) = (T^2_{init} - T_{eq}) \cdot e^{-\gamma t} + T_{eq}
 $$
 
-These results have been applied in the `object_object.py` script. A simple GUI wraps the graph and add some input-boxes to let you play around with different scenarios.
+These results have been applied in the `simple-scenarios/object_object.py` script. A simple GUI wraps the graphs and add some input-boxes to let you play around.
 
 
 
@@ -257,7 +257,7 @@ $$
 T_1(0 + dt) = T_1(dt)= T_1(0) - (\frac{T_1(0) - T_2(0)}{R_{12} \cdot m_1 \cdot c_1} + \frac{T_1(0) - T_{env}}{R_{1-env} \cdot m_1 \cdot c_1}) \cdot dt = T^1_{init} - (\frac{T^1_{init} - T^2_{init}}{R_{12} \cdot m_1 \cdot c_1} + \frac{T^1_{init} - T_{env}}{R_{1-env} \cdot m_1 \cdot c_1}) \cdot dt
 $$
 
-We can see that by iterating this formula over and over again and by storing each time the values computed we are able to build the temperature curve of the object. Obviously, all the temperatures of the system must be updated over time, so to be able to build the $T_1(t)$ temperature curve is necessary to build the $T_2(t)$ temperature curve at the same time. This idea is applied in the `object_object_environment.py` script, and seems to work pretty well.
+We can see that by iterating this formula over and over again and by storing each time the values computed we are able to build the temperature curve of the object. Obviously, all the temperatures of the system must be updated over time, so to be able to build the $T_1(t)$ temperature curve is necessary to build the $T_2(t)$ temperature curve at the same time. This idea is applied in the `simple-scenario/object_object_environment.py` script, and seems to work pretty well.
 
 
 
@@ -268,7 +268,7 @@ We can see that by iterating this formula over and over again and by storing eac
 
 
 ## A more general way
-As seen in the previous paragraph about the `object_object_environment.py` script, it is not always necessary to compute a differential equation to plot the graph of different objects in the system. By using the iterative approach, the only difficulty is writing the first equation correctly and then plugging it into a script that builds a function step by step. 
+As seen in the previous paragraph about the `simple-scenario/object_object_environment.py` script, it is not always necessary to compute a differential equation to plot the graph of different objects in the system. By using the iterative approach, the only difficulty is writing the first equation correctly and then plugging it into a script that builds a function step by step. 
 
 For example, suppose we have $N$ objects with different masses, specific heats, and temperatures, all linked together, surrounded by the same environment. The temperature equation for, let's say, object 1 would simply be:
 
@@ -321,7 +321,7 @@ of the inverse of the thermal resistances with respect to object $i$**. Furtherm
 and thus imposing that $m_{env} = \infty$ and $c_{env} = \infty$.
 
 $$
-T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N + 1}\frac{1}{R_{ij}} \cdot (T_i(t) - T_j(t)) \ ) \quad \quad \quad T_{N+1} = T_{env}, \quad m_{N+1} = \infty, \quad c_{N+1} = \infty
+T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N}\frac{1}{R_{ij}} \cdot (T_i(t) - T_j(t)) \ ) \quad \quad \quad T_{N} = T_{env}, \quad m_{N} = \infty, \quad c_{N} = \infty
 $$
 
 
@@ -337,74 +337,47 @@ $$
 Now that we have established a general criterion for studying the free evolution
 of the system over time, let us try different algorithmic approaches to improve it.
 
-The previous formulation we found could be furtherly improved by transforming it in a more vectorized one.
-To do so, let's work a bit on the summation to extract the term $T_i(t)$
+As we can see, determining the temperature of a given object at the next instant of time requires us to compute $o(N)$ multiplications, while the evolution of the whole system requires us to compute $o(N^2 \cdot D)$ iterations, where N is the cardinality of the set of objects and D is the total number of infinitesimal intervals of time that make up our simulation. This algorithm scales quadratically with the number of objects, and linearly with the duration of the simulation: generally speaking, the Forward Euler approach doesn't seem to scale well, and it is also known for its simplicity and instability.
 
-$$
-T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N + 1}\frac{T_i(t)}{R_{ij}} - \sum_{j=1}^{N + 1}\frac{T_j(t)}{R_{ij}} \ )
-$$
+From the algorithmic point of view there's nothing we can do: the algorithm we derived requires the update of the whole set of objects at each instant of time, and this property seems to belong strictly to its mathematical structure, we cannot simplify this.
 
-$$
-T_i(t + dt) = T_i(t) (1 - \sum_{j=1}^{N + 1}\frac{dt}{m_i \cdot c_i \cdot R_{ij}}) + \sum_{j=1}^{N + 1}\frac{dt}{m_i \cdot c_i \cdot R_{ij}} \cdot T_j(t)
-$$
-
-With this final revisitation, we have split the contribution of $T_i(t)$ from the contribution of the other $T_j(t)$. Now, with a bit of immagination it is possible to
-rewrite this equation in terms of vectors and matrices products. For this purpose, let us define $\vec{T}$(t) as a vector containing all the temperatures of objects at istant $t$, that is
-
-$$
-\vec{T}(t) = \[ T_1(t), \ T_2(t), ..., \ T_{N+1}(t) \]
-$$
-
-And let us also define a matrix $M_R$ in the following way:
-
-$$
-M_R = \frac{dt}{m_i \cdot c_i \cdot R_{ij}} \quad \forall i, j \in \[0, \ N+1\]
-$$
-
-With these new objects we can now rewrite the above equation in the following way
-
-$$
-\vec{T}(t + dt) = \vec{T}(t) \odot (\vec{1} - M_R \cdot \vec{1}) + M_R \cdot \vec{T}(t)
-$$
-
-Where $\odot$ represents the **Hadamard product** (or element-wise product) of matrices. This final and compact formulation makes great use of vectors and matrices, and for this
-reason is highly parallelizable. 
-
-This is the general formulation that we will use to solve our problem. As we can see, determining the temperature of a given object at a given time requires us to compute $o(N)$ multiplications, while the evolution of the whole system requires us to compute $o(N^2 \cdot D)$ iterations, where N is the cardinality of the set of objects and D is the total number of infinitesimal intervals of time that make up our simulation. Generally speaking, the Forward Euler approach doesn't seem to scale well, and it is also known for its simplicity and instability, an issue that we will adress later on.
-
-However, the vectorized representation has an important advantage: it allows algorithmic optimization techniques to be implemented, since many calculations can be parallelized
-by modern processors. So, before giving up with this possible solution, let's give modern parallel computing a chance.
-
-
+However, before giving up with the optimization, let's give parallel computation a try, and let's see how much modern computers are able to deal with this kind of complexity. To do this, we will look at three different algorithmic approaches, designed in different parallelization levels: a pure python implementation, a numpy implementation, and a full vectorized implementation.
 
 
 
 
 ## First attempt: plain python
-The first way we can try to implement the equation above is by using the python standard library. This first approach, that we will call plain, is implemented in the `plain_n_objects.py` file, under the `optimization` directory, where a little GUI helps us to visualize the temperature trend of the objects.
+The first way we can try to implement the equation above is by using the python standard library. This first approach, which we will call plain, is implemented in the `plain_algorithm.py` file, under the `optimization` directory.
 
 The core of the algorithm is this function here
 ```python
-def plain_algorithm(T_initial, Mr):
-    T_time_matrix = []
-    T_time_matrix.append(T_initial)
+def plain_algorithm(T_vector, R_matrix, m_vector, c_vector, environment=True):
 
-    ones_vector = [1 for _ in range(len(T_initial))]
-    vec_1 = matmult(Mr, list(zip(ones_vector)))
+    if environment:
+        initial_m[-1] = 100000
+        initial_c[-1] = 100000
 
-    for i in range(1, NUM_INTERVALS):
-        T_actual = T_time_matrix[i-1]
-        vec_2 = matmult(Mr, list(zip(T_actual)))
-
-        T_new = []
-        for j in range(0, OBJECT_NUMBER + 1):
-            T_new.append(T_actual[j] * (1 - list(zip(*vec_1))[0][j]) + list(zip(*vec_2))[0][j])
-
-        T_time_matrix.append(T_new)
-
+    T_time_matrix = [T_vector]
+    current_T_vector = T_vector
+    
+    for _ in range(int(DURATION / DT) - 1):
+        new_T_vector = []
+    
+        for j in range(OBJECT_NUMBER):
+            R_dot = [1 / R_matrix[j][n] for n in range(OBJECT_NUMBER)]
+            T_dot = [current_T_vector[j] - current_T_vector[n] for n in range(OBJECT_NUMBER)]
+            delta_T = DT / (m_vector[j] * c_vector[j]) * dot_product(R_dot, T_dot)
+            new_T_vector.append(current_T_vector[j] - delta_T)
+        
+        current_T_vector = new_T_vector
+        T_time_matrix.append(current_T_vector)
+        
     return T_time_matrix
 ```
-The `plain_algorithm` function takes the initial temperatures of the system and the matrix $M_R$ as input, iterates the vector operations (using the function `matmult` for matrix multiplication) as specified in the formula, and stores each temperature at each instant of time in a matrix, which is eventually returned.
+The `plain_algorithm` function takes the initial temperatures, thermal resistances, masses and specific heats of the system and, at each iteration, computes the next temperatures as specified in the formula, storing them in the `T_time_matrix` matrix, which is eventually returned.
+
+By running the script all the properties of the system will be randomly generated, but it is possible to modify some global variables relative to the number of objects, the duration of the simulation and the $dt$ interval. Also, by flagging the `environment` variable, the last object is transformed into the environment by changing its mass and specific heat to a very high value (theoretically should be $\infty$). Eventually, a png showing the temperature curves of the system over time is returned.
+
 The syntax of this algorithm is simple (and not very clean), but it is enough to understand how our formula can be roughly translated into a program to run a simple simulation script.
 
 
@@ -412,23 +385,122 @@ The syntax of this algorithm is simple (and not very clean), but it is enough to
 
 
 ## Second attempt: numpy
-Let's now try to include a bit of parallel programming in our algorithm by using a well known python library for vector operations: **numpy**. As before, the numpy approach is implemented in the `numpy_n_objects.py` file, under the `optimization` directory, with a simple GUI that helps to visualize the simulation.
+Let's now try to include a bit of parallel programming in our algorithm by using a well known python library for vector operations: **numpy**. As before, the numpy approach is implemented in the `numpy_algorithm.py` file, under the `optimization` directory.
 
 Here is a breakdown of the core numpy algorithm:
 ```python
-def numpy_algorithm(T_initial, Mr):
-    T_time_matrix = np.empty((NUM_INTERVALS, OBJECT_NUMBER + 1))
-    T_time_matrix[0] = T_initial
+def numpy_algorithm(T_vector, R_matrix, m_vector, c_vector, environment=True):
 
+    if environment:
+        initial_m[-1] = 100000
+        initial_c[-1] = 100000
 
-    for i in range(1, NUM_INTERVALS):
-        T_actual = T_time_matrix[i-1]
-        T_time_matrix[i] = T_actual*(1 - Mr @ np.ones(OBJECT_NUMBER+1)) + (Mr @ T_actual)
+    T_time_matrix = np.empty((int(DURATION/DT), OBJECT_NUMBER))
+    T_time_matrix[0] = T_vector
+
+    R_inv_dot = 1 / R_matrix[:, :]
+
+    for i in range(1, int(DURATION/DT)):
+        T_dot = (np.resize(T_time_matrix[i - 1], (OBJECT_NUMBER, OBJECT_NUMBER)).T - T_time_matrix[i - 1]).T
+        dot_result = T_time_matrix[i - 1] - (DT / (m_vector * c_vector)) * (R_inv_dot * T_dot).sum(axis=0)
+        T_time_matrix[i] = dot_result
 
     return T_time_matrix
 ```
+Here the idea is a bit more complex, and it's based on what we saw before: at each instant of time we can imagine to build to matrices, one containing all the thermal resistances of the objects, sorted by rows, and one containing all the *temperature differences between one temperature and all the others*, like this:
+
+$$
+R\_ inv\_ dot = 
+\begin{bmatrix}
+\frac{1}{R_{1-1}} & \frac{1}{R_{1-2}} & ... & \frac{1}{R_{1-N}} \\
+\frac{1}{R_{1-2}} & \frac{1}{R_{2-2}} & ... & \frac{1}{R_{2-N}} \\
+... & ... & ... & ... \\
+\frac{1}{R_{1-N}} & \frac{1}{R_{2-N}} & ... & \frac{1}{R_{N-N}} 
+\end{bmatrix}
+$$
+
+$$
+T\_ dot = 
+\begin{bmatrix}
+T_1 - T_1 & T_2 - T_1 & ... & T_N - T_1 \\
+T_1 - T_2 & T_2 - T_2 & ... & T_N - T_2 \\
+... & ... & ... & ... \\
+T_1 - T_N & T_2 - T_N & ... & T_N - T_N
+\end{bmatrix}
+$$
+
+In the first line inside the for loop the $T\_ dot$ matrix is built. By multiplying these two matrices together element-wise (what is called an **Hadamard product**) and then summing up by columns, in a "single" shot we compute **the summation in the formula for every object**. Then, by making the element-wise product between this result with the vector of masses and specific heats
+
+$$
+\begin{bmatrix}
+\frac{dt}{m_1 \cdot c_1} & \frac{dt}{m_2 \cdot c_2} & ... & \frac{dt}{m_N \cdot c_N}
+\end{bmatrix}
+$$
+
+and subtracting it from the vector of the current temperatures `T_time_matrix[i - 1]` (done in the second line inside the loop), we finally manage to compute the next iteration step. The third row is to store this new iteration in the `T_time_matrix`.
 
 
+## Third attempt: vectorized algorithm
+The previous formulation we found could be furtherly improved by transforming it in a more vectorized one.
+To do so, let's work a bit on the summation to extract the term $T_i(t)$
+
+$$
+T_i(t + dt) = T_i(t) - \frac{dt}{m_i \cdot c_i} ( \ \sum_{j=1}^{N}\frac{T_i(t)}{R_{ij}} - \sum_{j=1}^{N + 1}\frac{T_j(t)}{R_{ij}} \ )
+$$
+
+$$
+T_i(t + dt) = T_i(t) (1 - \sum_{j=1}^{N}\frac{dt}{m_i \cdot c_i \cdot R_{ij}}) + \sum_{j=1}^{N}\frac{dt}{m_i \cdot c_i \cdot R_{ij}} \cdot T_j(t)
+$$
+
+With this final revisitation, we have split the contribution of $T_i(t)$ from the contribution of the other $T_j(t)$. Now, with a bit of immagination it is possible to
+rewrite this equation in terms of vectors and matrices products. For this purpose, let us define $\vec{T}$(t) as a vector containing all the temperatures of objects at istant $t$, that is
+
+$$
+\vec{T}(t) = 
+\begin{bmatrix}
+T_1(t) & T_2(t) & ... & T_{N}(t)
+\end{bmatrix}^T
+$$
+
+And let us also define a matrix $M_R$ in the following way:
+
+$$
+M_R = 
+\begin{bmatrix}
+\frac{dt}{m_1 \cdot c_1 \cdot R_{1-1}} & \frac{dt}{m_1 \cdot c_1 \cdot R_{1-2}} & ... & \frac{dt}{m_1 \cdot c_1 \cdot R_{1-N}} \\
+\frac{dt}{m_2 \cdot c_2 \cdot R_{2-1}} & \frac{dt}{m_2 \cdot c_2 \cdot R_{2-2}} & ... & \frac{dt}{m_2 \cdot c_2 \cdot R_{2-N}} \\
+... & ... & ... & ... \\
+\frac{dt}{m_N \cdot c_N \cdot R_{N-1}} & \frac{dt}{m_N \cdot c_N \cdot R_{N-2}} & ... & \frac{dt}{m_N \cdot c_N \cdot R_{N-N}} \\
+\end{bmatrix}
+$$
+
+
+With these new objects we can now rewrite the above equation in the following way
+
+$$
+\vec{T}(t + dt) = \vec{T}(t) \odot (\vec{1} - M_R \cdot \vec{1}) + M_R \cdot \vec{T}(t)
+$$
+
+Where $\odot$ represents the **Hadamard product** (or element-wise product) of matrices. This final and compact formulation makes great use of vectors and matrices, and for this reason is highly parallelizable. It is implemented in the `vectorized_algorithm.py` file, under the `optimization` directory, and here is its core function:
+
+```python
+def vectorized_algorithm(T_vector, R_matrix, m_vector, c_vector, environment=True):
+
+    if environment:
+        m_vector[-1] = 100000
+        c_vector[-1] = 100000
+
+    scaling_vector = DT / (m_vector * c_vector)
+    Mr = (1 / R_matrix) * scaling_vector[:, np.newaxis]
+            
+    T_time_matrix = np.empty((int(DURATION/DT), OBJECT_NUMBER))
+    T_time_matrix[0] = T_vector
+
+    for i in range(1, int(DURATION/DT)):
+        T_time_matrix[i] = T_time_matrix[i-1]*(1 - Mr @ np.ones(OBJECT_NUMBER)) + (Mr @ T_time_matrix[i-1])
+
+    return T_time_matrix
+```
 
 
 
