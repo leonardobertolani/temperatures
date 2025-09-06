@@ -1,6 +1,7 @@
-basic-scenarios/venv/
-optimization/venv/
+basic-scenarios/.venv/
+optimization/.venv/
 optimization/__pycache__/
 optimization/benchmark_1alg.png
 optimization/benchmark_2alg.png
 optimization/benchmark_3alg.png
+
