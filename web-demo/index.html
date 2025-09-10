@@ -3,225 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulazione Diffusione Calore</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-        }
-
-        #grid-container {
-            display: grid;
-            border: 2px solid black;
-        }
-
-        .cell {
-            width: 30px;
-            height: 30px;
-            border: 1px solid #ccc;
-            box-sizing: border-box; /* Include padding e border nella dimensione */
-            transition: background-color 0.5s ease; /* Transizione per un effetto visivo più fluido */
-        }
-
-        #controls {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-    </style>
+    <title>Simulation</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h2>Simulazione Diffusione del Calore</h2>
-
-    <div id="grid-container"></div>
-
-    <div id="controls">
-        <button id="randomize-btn">Genera Distribuzione Casuale</button>
-        <button id="simulate-btn">Avvia Simulazione</button>
+    <div id="left-column">
+        <h3>Thermodynamical properties</h3>
+        <div class="property-group">
+            <label for="resistance-input">Thermal resistance (R)</label>
+            <input type="range" id="resistance-input" min="0.01" max="10" step="0.1">
+            <span id="resistance-value"></span>
+        </div>
+        <div class="property-group">
+            <label for="specific-heat-input">Specific heat (C)</label>
+            <input type="range" id="heat-capacity-input" min="1" max="10" step="0.1">
+            <span id="heat-capacity-value"></span>
+        </div>
+        <div class="property-group">
+            <label for="mass-input">Mass (m)</label>
+            <input type="range" id="mass-input" min="0.1" max="10" step="1">
+            <span id="mass-value"></span>
+        </div>
     </div>
 
-    <script>
-        const GRID_DIMENSION = 10;
-        const MIN_TEMP = 150;
-        const MAX_TEMP = 30000;
-        const NUM_OBJECTS = GRID_DIMENSION * GRID_DIMENSION;
-        const DT = 20;
+    <div id="center-column">
+        <h2>Heat diffusion simulation</h2>
+        <div id="grid-container"></div>
+        <div id="controls">
+            <button id="simulate-btn">Start simulation</button>
+        </div>
+    </div>
 
-        let T_vector = [];
-        let R_matrix = []; // Nuova variabile per la matrice delle resistenze
-        let c_vector = []; // Nuova variabile per il vettore dei calori specifici
-        let m_vector = []; // Nuova variabile per il vettore dei calori specifici
-        let isSimulating = false;
-        let simulationInterval = null;
+    <div id="right-column">
+        <h3>Distributions</h3>
+        <button class="generate-btn" id="randomize-btn">Random</button>
+        <button class="generate-btn" id="corner-btn">Corners</button>
+        <button class="generate-btn" id="center-btn">Center</button>
+        <button class="generate-btn" id="side-btn">Side</button>
+    </div>
 
-        const gridContainer = document.getElementById('grid-container');
-        const randomizeBtn = document.getElementById('randomize-btn');
-        const simulateBtn = document.getElementById('simulate-btn');
-
-        gridContainer.style.gridTemplateColumns = `repeat(${GRID_DIMENSION}, 1fr)`;
-
-        function createGrid() {
-            T_vector = [];
-            gridContainer.innerHTML = '';
-            for (let i = 0; i < NUM_OBJECTS; i++) {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                cell.id = `cell-${i}`;
-                gridContainer.appendChild(cell);
-            }
-        }
-
-        function getColor(temperature) {
-            const normalizedTemp = (temperature - MIN_TEMP) / (MAX_TEMP - MIN_TEMP);
-            const g = Math.floor(255 * (1 - normalizedTemp));
-            const b = Math.floor(255 * (1 - normalizedTemp));
-            return `rgb(255, ${g}, ${b})`;
-        }
-
-        function updateColors() {
-            for (let i = 0; i < T_vector.length; i++) {
-                const cell = document.getElementById(`cell-${i}`);
-                if (cell) {
-                    cell.style.backgroundColor = getColor(T_vector[i]);
-                }
-            }
-        }
-
-        function randomizeProperties() {
-            console.log("properties randomized");
-
-            if (isSimulating) {
-                toggleSimulation();
-            }
-
-            // Inizializza T_vector con temperature casuali
-            T_vector = Array.from({ length: NUM_OBJECTS }, () =>
-                MIN_TEMP//.floor(Math.random() * (MAX_TEMP - MIN_TEMP + 1)) + MIN_TEMP
-            );
-            T_vector[0] = MAX_TEMP;
-            T_vector[1] = MAX_TEMP;
-            T_vector[2] = MAX_TEMP;
-            T_vector[10] = MAX_TEMP;
-            T_vector[11] = MAX_TEMP;
-            T_vector[20] = MAX_TEMP;
-
-            // Inizializza R_matrix come una matrice simmetrica randomica
-            R_matrix = [];
-            for (let r = 0; r < NUM_OBJECTS; r++) {
-                R_matrix[r] = [];
-                for (let c = 0; c < NUM_OBJECTS; c++) {
-                    R_matrix[r][c] = 1000000;
-                }
-            }
-
-            for (let i = 0; i < NUM_OBJECTS - 1; i++) {
-                if((i+1)%GRID_DIMENSION == 0)
-                    continue;
-                else {
-                    R_matrix[2 + i - 1][1 + i - 1] = 0.01;//Math.random();
-                    R_matrix[1 + i - 1][2 + i - 1] = R_matrix[2 + i - 1][1 + i - 1];
-                }
-            }
-
-            for (let i = 0; i < NUM_OBJECTS - GRID_DIMENSION; i++) {
-                R_matrix[(GRID_DIMENSION+1) + i - 1][1 + i - 1] = 0.01;//Math.random();
-                R_matrix[1 + i - 1][(GRID_DIMENSION+1) + i - 1] = R_matrix[(GRID_DIMENSION+1) + i - 1][1 + i - 1];
-            }
-
-            // Inizializza c_vector come un vettore randomico
-            c_vector = Array.from({ length: NUM_OBJECTS }, () => Math.random() * (447 - 453 + 1) + 447);
-            c_vector[0] = 5000;
-            c_vector[1] = 5000;
-            c_vector[2] = 5000;
-            c_vector[10] = 5000;
-            c_vector[11] = 5000;
-            c_vector[20] = 5000;
-            m_vector = Array.from({ length: NUM_OBJECTS }, () => Math.random() * (27 - 33 + 1) + 27);
-
-            updateColors();
-        }
-
-        function dot_product(vec1, vec2) {
-            result = 0;
-            for(let i = 0; i < NUM_OBJECTS; i++) {
-                result += vec1[i]*vec2[i];
-            }
-            return result;
-        }
-
-        // Funzione di simulazione semplificata (NON usa R_matrix e c_vector)
-        function heat_diffusion_simulation() {
-            console.log(T_vector[0]);
-
-            const newT_vector = [...T_vector];
-
-            for (let i = 0; i < NUM_OBJECTS; i++) {
-
-                R_dot = [];
-                for (let j = 0; j < NUM_OBJECTS; j++) {
-                    R_dot[j] = 1 / R_matrix[i][j];
-                }
-
-                T_dot = [];
-                for (let j = 0; j < NUM_OBJECTS; j++) {
-                    T_dot[j] = T_vector[i] - T_vector[j];
-                }
-
-                console.log(dot_product(R_dot, T_dot));
-                console.log(m_vector[i]);
-                console.log(c_vector[i]);
-                delta_T = DT * dot_product(R_dot, T_dot) / (m_vector[i] * c_vector[i]) ;
-
-                console.log(delta_T);
-
-                newT_vector[i] = T_vector[i] - delta_T;
-                
-            }
-            
-            T_vector = newT_vector;
-        }
-
-        function toggleSimulation() {
-            if (isSimulating) {
-                clearInterval(simulationInterval);
-                simulateBtn.textContent = 'Avvia Simulazione';
-            } else {
-                simulationInterval = setInterval(() => {
-                    heat_diffusion_simulation();
-                    updateColors();
-                }, 25);
-                simulateBtn.textContent = 'Ferma Simulazione';
-            }
-            isSimulating = !isSimulating;
-        }
-
-        randomizeBtn.addEventListener('click', randomizeProperties);
-        simulateBtn.addEventListener('click', toggleSimulation);
-
-        createGrid();
-        randomizeProperties();
-    </script>
-
+    <script src="script.js"></script>
+    <script src="buttons.js"></script>
 </body>
 </html>
