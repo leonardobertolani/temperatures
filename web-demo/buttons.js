@@ -12,9 +12,6 @@ randomizeBtn.addEventListener('click', () => {
     }
 
     T_vector = Array.from({ length: NUM_OBJECTS }, () => Math.floor(Math.random() * (MAX_TEMP - MIN_TEMP + 1)) + MIN_TEMP );
-    c_vector = Array.from({ length: NUM_OBJECTS }, () => Math.random() * (MAX_C - MIN_C + 1) + MIN_C);
-    m_vector = Array.from({ length: NUM_OBJECTS }, () => Math.random() * (MAX_M - MIN_M + 1) + MIN_M);
-
     updateColors();
 }
 );

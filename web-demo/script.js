@@ -1,7 +1,7 @@
 const GRID_DIMENSION = 10;
 const MIN_TEMP = 150;
 const MAX_TEMP = 300;
-const MIN_R = 0.0001;
+const MIN_R = 0.001;
 const MAX_R = 1.5;
 const MIN_C = 400;
 const MAX_C = 500;
@@ -11,27 +11,29 @@ const NUM_OBJECTS = GRID_DIMENSION * GRID_DIMENSION;
 const DT = 20;
 
 let T_vector = [];
-let R_matrix = [];
+let L_matrix = [];
 let c_vector = []; 
-let m_vector = []; 
+let d_vector = []; 
 let isSimulating = false;
 let simulationInterval = null;
 
 let T_value = (MAX_TEMP + MIN_TEMP)/2;
-let R_value = 0.1;
+let L_value = 0.1;
 let c_value = (MAX_C + MIN_C)/2;
-let m_value = (MAX_M + MIN_M)/2;
+let d_value = (MAX_M + MIN_M)/2;
 
 const gridContainer = document.getElementById('grid-container');
 
-const resistanceInput = document.getElementById('resistance-input');
-const resistanceValueSpan = document.getElementById('resistance-value');
+const conductivityInput = document.getElementById('conductivity-input');
+const conductivityValueSpan = document.getElementById('conductivity-value');
 
 const heatCapacityInput = document.getElementById('heat-capacity-input');
 const heatCapacityValueSpan = document.getElementById('heat-capacity-value');
 
-const massInput = document.getElementById('mass-input');
-const massValueSpan = document.getElementById('mass-value');
+const densityInput = document.getElementById('density-input');
+const densityValueSpan = document.getElementById('density-value');
+
+//const stabilityValueSpan = document.getElementById('stability-value');
 
 gridContainer.style.gridTemplateColumns = `repeat(${GRID_DIMENSION}, 1fr)`;
 
@@ -44,11 +46,14 @@ function init() {
         gridContainer.appendChild(cell);
     }
 
-    R_matrix = [];
+    const gridWidth = gridContainer.offsetWidth;
+    document.documentElement.style.setProperty('--grid-width', `${gridWidth}px`);
+
+    L_matrix = [];
     for (let r = 0; r < NUM_OBJECTS; r++) {
-        R_matrix[r] = [];
+        L_matrix[r] = [];
         for (let c = 0; c < NUM_OBJECTS; c++) {
-            R_matrix[r][c] = 1000000;
+            L_matrix[r][c] = 1000000;
         }
     }
 
@@ -56,27 +61,34 @@ function init() {
         if((i+1)%GRID_DIMENSION == 0)
             continue;
         else {
-            R_matrix[2 + i - 1][1 + i - 1] = R_value;
-            R_matrix[1 + i - 1][2 + i - 1] = R_matrix[2 + i - 1][1 + i - 1];
+            L_matrix[2 + i - 1][1 + i - 1] = L_value;
+            L_matrix[1 + i - 1][2 + i - 1] = L_matrix[2 + i - 1][1 + i - 1];
         }
     }
 
     for (let i = 0; i < NUM_OBJECTS - GRID_DIMENSION; i++) {
-        R_matrix[(GRID_DIMENSION+1) + i - 1][1 + i - 1] = R_value;
-        R_matrix[1 + i - 1][(GRID_DIMENSION+1) + i - 1] = R_matrix[(GRID_DIMENSION+1) + i - 1][1 + i - 1];
+        L_matrix[(GRID_DIMENSION+1) + i - 1][1 + i - 1] = L_value;
+        L_matrix[1 + i - 1][(GRID_DIMENSION+1) + i - 1] = L_matrix[(GRID_DIMENSION+1) + i - 1][1 + i - 1];
     }
 
     T_vector = Array.from({ length: NUM_OBJECTS }, () => T_value );
     c_vector = Array.from({ length: NUM_OBJECTS }, () => c_value );
-    m_vector = Array.from({ length: NUM_OBJECTS }, () => m_value );
+    d_vector = Array.from({ length: NUM_OBJECTS }, () => d_value );
 
+    //updateStabilityNumber();
 }
 
 function getColor(temperature) {
     const normalizedTemp = (temperature - MIN_TEMP) / (MAX_TEMP - MIN_TEMP);
-    const g = Math.floor(255 * (1 - normalizedTemp));
-    const b = Math.floor(255 * (1 - normalizedTemp));
-    return `rgb(255, ${g}, ${b})`;
+
+    const coldColor = { r: 255, g: 255, b: 230 };
+    const hotColor = { r: 255, g: 140, b: 0 }; 
+
+    const r = Math.floor(coldColor.r + (hotColor.r - coldColor.r) * normalizedTemp);
+    const g = Math.floor(coldColor.g + (hotColor.g - coldColor.g) * normalizedTemp);
+    const b = Math.floor(coldColor.b + (hotColor.b - coldColor.b) * normalizedTemp);
+
+    return `rgb(${r}, ${g}, ${b})`;
 }
 
 function updateColors() {
@@ -88,6 +100,18 @@ function updateColors() {
     }
 }
 
+/*
+let stabilityNumber;
+function updateStabilityNumber() {
+    stabilityNumber = 1 - 4 * DT / (d_vector[0]*c_vector[0]*L_matrix[1][0]);
+    stabilityValueSpan.textContent = stabilityNumber.toFixed(3);
+
+    if(stabilityNumber <= -1) {
+        stabilityValueSpan.setAttribute('color', '#a5a5a5');
+    }
+}
+*/
+
 function dot_product(vec1, vec2) {
     result = 0;
     for(let i = 0; i < NUM_OBJECTS; i++) {
@@ -96,7 +120,7 @@ function dot_product(vec1, vec2) {
     return result;
 }
 
-// Funzione di simulazione semplificata (NON usa R_matrix e c_vector)
+// Funzione di simulazione semplificata (NON usa L_matrix e c_vector)
 function heat_diffusion_simulation() {
     console.log(T_vector[0]);
 
@@ -104,9 +128,9 @@ function heat_diffusion_simulation() {
 
     for (let i = 0; i < NUM_OBJECTS; i++) {
 
-        R_dot = [];
+        L_dot = [];
         for (let j = 0; j < NUM_OBJECTS; j++) {
-            R_dot[j] = 1 / R_matrix[i][j];
+            L_dot[j] = 1 / L_matrix[i][j];
         }
 
         T_dot = [];
@@ -114,7 +138,7 @@ function heat_diffusion_simulation() {
             T_dot[j] = T_vector[i] - T_vector[j];
         }
 
-        delta_T = DT * dot_product(R_dot, T_dot) / (m_vector[i] * c_vector[i]) ;
+        delta_T = DT * dot_product(L_dot, T_dot) / (d_vector[i] * c_vector[i]) ;
 
         console.log(delta_T);
 
@@ -128,58 +152,69 @@ function heat_diffusion_simulation() {
 function toggleSimulation() {
     if (isSimulating) {
         clearInterval(simulationInterval);
-        simulateBtn.textContent = 'Avvia Simulazione';
+        simulateBtn.textContent = 'Start simulation';
+        simulateBtn.classList.remove('simulating'); // Rimuovi la classe
     } else {
         simulationInterval = setInterval(() => {
             heat_diffusion_simulation();
             updateColors();
         }, 25);
-        simulateBtn.textContent = 'Ferma Simulazione';
+        simulateBtn.textContent = 'Stop simulation'; // Cambiato da Avvia a Stop per coerenza
+        simulateBtn.classList.add('simulating'); // Aggiungi la classe
     }
     isSimulating = !isSimulating;
 }
 
-resistanceValueSpan.textContent = R_value;
-resistanceInput.value = R_value;
-resistanceInput.setAttribute('min', MIN_R);
-resistanceInput.setAttribute('max', MAX_R);
-resistanceInput.addEventListener('input', (event) => {
-    R_value = parseFloat(event.target.value);
-    resistanceValueSpan.textContent = R_value.toFixed(1);
+conductivityValueSpan.textContent = L_value;
+conductivityInput.value = L_value.toFixed(3);
+conductivityInput.setAttribute('min', MIN_R);
+conductivityInput.setAttribute('max', MAX_R);
+conductivityInput.setAttribute('step', 0.001);
+conductivityInput.addEventListener('input', (event) => {
+    L_value = parseFloat(event.target.value);
+    conductivityValueSpan.textContent = L_value.toFixed(3);
 
     for (let i = 0; i < NUM_OBJECTS - 1; i++) {
         if((i+1)%GRID_DIMENSION == 0)
             continue;
         else {
-            R_matrix[2 + i - 1][1 + i - 1] = R_value;
-            R_matrix[1 + i - 1][2 + i - 1] = R_matrix[2 + i - 1][1 + i - 1];
+            L_matrix[2 + i - 1][1 + i - 1] = L_value;
+            L_matrix[1 + i - 1][2 + i - 1] = L_matrix[2 + i - 1][1 + i - 1];
         }
     }
 
     for (let i = 0; i < NUM_OBJECTS - GRID_DIMENSION; i++) {
-        R_matrix[(GRID_DIMENSION+1) + i - 1][1 + i - 1] = R_value;
-        R_matrix[1 + i - 1][(GRID_DIMENSION+1) + i - 1] = R_matrix[(GRID_DIMENSION+1) + i - 1][1 + i - 1];
+        L_matrix[(GRID_DIMENSION+1) + i - 1][1 + i - 1] = L_value;
+        L_matrix[1 + i - 1][(GRID_DIMENSION+1) + i - 1] = L_matrix[(GRID_DIMENSION+1) + i - 1][1 + i - 1];
     }
+
+    updateStabilityNumber();
 });
 
 heatCapacityValueSpan.textContent = c_value;
-heatCapacityInput.value = c_value;
+heatCapacityInput.value = c_value.toFixed(0);
 heatCapacityInput.setAttribute('min', MIN_C);
 heatCapacityInput.setAttribute('max', MAX_C);
+heatCapacityInput.setAttribute('step', 10);
 heatCapacityInput.addEventListener('input', (event) => {
     c_value = parseFloat(event.target.value);
-    heatCapacityValueSpan.textContent = c_value.toFixed(1);
+    heatCapacityValueSpan.textContent = c_value.toFixed(0);
     c_vector = Array.from({ length: NUM_OBJECTS }, () => c_value );
+
+    updateStabilityNumber();
 });
 
-massInput.value = m_value;
-massValueSpan.textContent = m_value;
-massInput.setAttribute('min', MIN_M);
-massInput.setAttribute('max', MAX_C);
-massInput.addEventListener('input', (event) => {
-    m_value = parseFloat(event.target.value);
-    massValueSpan.textContent = m_value.toFixed(1);
-    m_vector = Array.from({ length: NUM_OBJECTS }, () => m_value );
+densityInput.value = d_value;
+densityValueSpan.textContent = d_value.toFixed(0);;
+densityInput.setAttribute('min', MIN_M);
+densityInput.setAttribute('max', MAX_C);
+densityInput.setAttribute('step', 1);
+densityInput.addEventListener('input', (event) => {
+    d_value = parseFloat(event.target.value);
+    densityValueSpan.textContent = d_value.toFixed(0);
+    d_vector = Array.from({ length: NUM_OBJECTS }, () => d_value );
+
+    updateStabilityNumber();
 });
 
 init();
