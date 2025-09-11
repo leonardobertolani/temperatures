@@ -26,103 +26,103 @@ cornerBtn.addEventListener('click', () => {
     switch(which_corner) {
         case 0:
             T_vector = Array.from({ length: NUM_OBJECTS }, () => MIN_TEMP );
-            T_vector[0] = MAX_TEMP;
-            T_vector[1] = MAX_TEMP;
-            T_vector[2] = MAX_TEMP;
-            T_vector[3] = MAX_TEMP;
-            T_vector[10] = MAX_TEMP;
-            T_vector[11] = MAX_TEMP;
-            T_vector[12] = MAX_TEMP;
-            T_vector[20] = MAX_TEMP;
-            T_vector[21] = MAX_TEMP;
-            T_vector[30] = MAX_TEMP;
+            T_vector[0*GRID_DIMENSION + 0] = MAX_TEMP;
+            T_vector[0*GRID_DIMENSION + 1] = MAX_TEMP;
+            T_vector[0*GRID_DIMENSION + 2] = MAX_TEMP;
+            T_vector[0*GRID_DIMENSION + 3] = MAX_TEMP;
+            T_vector[1*GRID_DIMENSION + 0] = MAX_TEMP;
+            T_vector[1*GRID_DIMENSION + 1] = MAX_TEMP;
+            T_vector[1*GRID_DIMENSION + 2] = MAX_TEMP;
+            T_vector[2*GRID_DIMENSION + 0] = MAX_TEMP;
+            T_vector[2*GRID_DIMENSION + 1] = MAX_TEMP;
+            T_vector[3*GRID_DIMENSION + 0] = MAX_TEMP;
             break;
         case 1:
             T_vector = Array.from({ length: NUM_OBJECTS }, () => MIN_TEMP );
-            T_vector[GRID_DIMENSION - 1] = MAX_TEMP;
-            T_vector[GRID_DIMENSION - 2] = MAX_TEMP;
-            T_vector[GRID_DIMENSION - 3] = MAX_TEMP;
-            T_vector[GRID_DIMENSION - 4] = MAX_TEMP;
+            T_vector[1*GRID_DIMENSION - 1] = MAX_TEMP;
+            T_vector[1*GRID_DIMENSION - 2] = MAX_TEMP;
+            T_vector[1*GRID_DIMENSION - 3] = MAX_TEMP;
+            T_vector[1*GRID_DIMENSION - 4] = MAX_TEMP;
             T_vector[2*GRID_DIMENSION - 1] = MAX_TEMP;
             T_vector[2*GRID_DIMENSION - 2] = MAX_TEMP;
             T_vector[2*GRID_DIMENSION - 3] = MAX_TEMP;
             T_vector[3*GRID_DIMENSION - 1] = MAX_TEMP;
             T_vector[3*GRID_DIMENSION - 2] = MAX_TEMP;
             T_vector[4*GRID_DIMENSION - 1] = MAX_TEMP;
+            break;
+        case 2:
+            T_vector = Array.from({ length: NUM_OBJECTS }, () => MIN_TEMP );
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-0) - 1] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-0) - 2] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-0) - 3] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-0) - 4] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) - 1] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) - 2] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) - 3] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-2) - 1] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-2) - 2] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-3) - 1] = MAX_TEMP;
             break;
         case 3:
             T_vector = Array.from({ length: NUM_OBJECTS }, () => MIN_TEMP );
-            T_vector[GRID_DIMENSION*GRID_DIMENSION - 1] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*GRID_DIMENSION - 2] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*GRID_DIMENSION - 3] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*GRID_DIMENSION - 4] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) - 1] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) - 2] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) - 3] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*(GRID_DIMENSION-2) - 1] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*(GRID_DIMENSION-2) - 2] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*(GRID_DIMENSION-3) - 1] = MAX_TEMP;
-            break;
-        case 4:
-            T_vector = Array.from({ length: NUM_OBJECTS }, () => MIN_TEMP );
-            T_vector[GRID_DIMENSION*(GRID_DIMENSION-1)] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) + 0] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) + 1] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) + 2] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) + 3] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*(GRID_DIMENSION-2)] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-2) + 0] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-2) + 1] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-2) + 2] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*(GRID_DIMENSION-3)] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-3) + 0] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-3) + 1] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*(GRID_DIMENSION-4)] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-4) + 0] = MAX_TEMP;
             break;
-        case 5:
+        case 4:
             T_vector = Array.from({ length: NUM_OBJECTS }, () => MIN_TEMP );
-            T_vector[0] = MAX_TEMP;
-            T_vector[1] = MAX_TEMP;
-            T_vector[2] = MAX_TEMP;
-            T_vector[3] = MAX_TEMP;
-            T_vector[10] = MAX_TEMP;
-            T_vector[11] = MAX_TEMP;
-            T_vector[12] = MAX_TEMP;
-            T_vector[20] = MAX_TEMP;
-            T_vector[21] = MAX_TEMP;
-            T_vector[30] = MAX_TEMP;
-            T_vector[GRID_DIMENSION - 1] = MAX_TEMP;
-            T_vector[GRID_DIMENSION - 2] = MAX_TEMP;
-            T_vector[GRID_DIMENSION - 3] = MAX_TEMP;
-            T_vector[GRID_DIMENSION - 4] = MAX_TEMP;
+            T_vector[0*GRID_DIMENSION + 0] = MAX_TEMP;
+            T_vector[0*GRID_DIMENSION + 1] = MAX_TEMP;
+            T_vector[0*GRID_DIMENSION + 2] = MAX_TEMP;
+            T_vector[0*GRID_DIMENSION + 3] = MAX_TEMP;
+            T_vector[1*GRID_DIMENSION + 0] = MAX_TEMP;
+            T_vector[1*GRID_DIMENSION + 1] = MAX_TEMP;
+            T_vector[1*GRID_DIMENSION + 2] = MAX_TEMP;
+            T_vector[2*GRID_DIMENSION + 0] = MAX_TEMP;
+            T_vector[2*GRID_DIMENSION + 1] = MAX_TEMP;
+            T_vector[3*GRID_DIMENSION + 0] = MAX_TEMP;
+            T_vector[1*GRID_DIMENSION - 1] = MAX_TEMP;
+            T_vector[1*GRID_DIMENSION - 2] = MAX_TEMP;
+            T_vector[1*GRID_DIMENSION - 3] = MAX_TEMP;
+            T_vector[1*GRID_DIMENSION - 4] = MAX_TEMP;
             T_vector[2*GRID_DIMENSION - 1] = MAX_TEMP;
             T_vector[2*GRID_DIMENSION - 2] = MAX_TEMP;
             T_vector[2*GRID_DIMENSION - 3] = MAX_TEMP;
             T_vector[3*GRID_DIMENSION - 1] = MAX_TEMP;
             T_vector[3*GRID_DIMENSION - 2] = MAX_TEMP;
             T_vector[4*GRID_DIMENSION - 1] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*GRID_DIMENSION - 1] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*GRID_DIMENSION - 2] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*GRID_DIMENSION - 3] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*GRID_DIMENSION - 4] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-0) - 1] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-0) - 2] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-0) - 3] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-0) - 4] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) - 1] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) - 2] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) - 3] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-2) - 1] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-2) - 2] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-3) - 1] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*(GRID_DIMENSION-1)] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) + 0] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) + 1] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) + 2] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-1) + 3] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*(GRID_DIMENSION-2)] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-2) + 0] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-2) + 1] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-2) + 2] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*(GRID_DIMENSION-3)] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-3) + 0] = MAX_TEMP;
             T_vector[GRID_DIMENSION*(GRID_DIMENSION-3) + 1] = MAX_TEMP;
-            T_vector[GRID_DIMENSION*(GRID_DIMENSION-4)] = MAX_TEMP;
+            T_vector[GRID_DIMENSION*(GRID_DIMENSION-4) + 0] = MAX_TEMP;
             break;
     }
 
     updateColors();
-    which_corner = (which_corner+1)%6;
+    which_corner = (which_corner+1)%5;
 }
 );
 
@@ -133,35 +133,19 @@ centerBtn.addEventListener('click', () => {
     }
 
     T_vector = Array.from({ length: NUM_OBJECTS }, () => MIN_TEMP );
-    if(GRID_DIMENSION%2==0) {
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 2) + GRID_DIMENSION/2] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 2) + GRID_DIMENSION/2 - 1] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 1) + GRID_DIMENSION/2 + 1] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 1) + GRID_DIMENSION/2] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 1) + GRID_DIMENSION/2 - 1] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 1) + GRID_DIMENSION/2 - 2] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2) + GRID_DIMENSION/2 + 1] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2) + GRID_DIMENSION/2] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2) + GRID_DIMENSION/2 - 1] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2) + GRID_DIMENSION/2 - 2] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 + 1) + GRID_DIMENSION/2] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 + 1) + GRID_DIMENSION/2 - 1] = MAX_TEMP;
-    }
-    else {
-        //TODO
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 2) + GRID_DIMENSION/2] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 2) + GRID_DIMENSION/2 - 1] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 1) + GRID_DIMENSION/2 + 1] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 1) + GRID_DIMENSION/2] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 1) + GRID_DIMENSION/2 - 1] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 1) + GRID_DIMENSION/2 - 2] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2) + GRID_DIMENSION/2 + 1] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2) + GRID_DIMENSION/2] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2) + GRID_DIMENSION/2 - 1] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2) + GRID_DIMENSION/2 - 2] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 + 1) + GRID_DIMENSION/2] = MAX_TEMP;
-        T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 + 1) + GRID_DIMENSION/2 - 1] = MAX_TEMP;
-    }
+    
+    T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 2) + GRID_DIMENSION/2 - 0] = MAX_TEMP;
+    T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 2) + GRID_DIMENSION/2 - 1] = MAX_TEMP;
+    T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 1) + GRID_DIMENSION/2 + 1] = MAX_TEMP;
+    T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 1) + GRID_DIMENSION/2 + 0] = MAX_TEMP;
+    T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 1) + GRID_DIMENSION/2 - 1] = MAX_TEMP;
+    T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 - 1) + GRID_DIMENSION/2 - 2] = MAX_TEMP;
+    T_vector[GRID_DIMENSION*(GRID_DIMENSION/2) + GRID_DIMENSION/2 + 1] = MAX_TEMP;
+    T_vector[GRID_DIMENSION*(GRID_DIMENSION/2) + GRID_DIMENSION/2 + 0] = MAX_TEMP;
+    T_vector[GRID_DIMENSION*(GRID_DIMENSION/2) + GRID_DIMENSION/2 - 1] = MAX_TEMP;
+    T_vector[GRID_DIMENSION*(GRID_DIMENSION/2) + GRID_DIMENSION/2 - 2] = MAX_TEMP;
+    T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 + 1) + GRID_DIMENSION/2 + 0] = MAX_TEMP;
+    T_vector[GRID_DIMENSION*(GRID_DIMENSION/2 + 1) + GRID_DIMENSION/2 - 1] = MAX_TEMP;
 
     updateColors();
 });

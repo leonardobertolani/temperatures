@@ -120,7 +120,7 @@ function dot_product(vec1, vec2) {
     return result;
 }
 
-// Funzione di simulazione semplificata (NON usa L_matrix e c_vector)
+
 function heat_diffusion_simulation() {
     console.log(T_vector[0]);
 
@@ -153,14 +153,14 @@ function toggleSimulation() {
     if (isSimulating) {
         clearInterval(simulationInterval);
         simulateBtn.textContent = 'Start simulation';
-        simulateBtn.classList.remove('simulating'); // Rimuovi la classe
+        simulateBtn.classList.remove('simulating');
     } else {
         simulationInterval = setInterval(() => {
             heat_diffusion_simulation();
             updateColors();
         }, 25);
-        simulateBtn.textContent = 'Stop simulation'; // Cambiato da Avvia a Stop per coerenza
-        simulateBtn.classList.add('simulating'); // Aggiungi la classe
+        simulateBtn.textContent = 'Stop simulation'; 
+        simulateBtn.classList.add('simulating');
     }
     isSimulating = !isSimulating;
 }

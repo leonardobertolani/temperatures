@@ -1,19 +1,14 @@
-/* style.css */
-
-/* 1. Sfondo del Body (Cruciale per il Glassmorphism) */
 body {
     font-family: Arial, sans-serif;
-    display: flex; /* Mantenuto flex per centrare il contenitore principale */
+    display: flex; 
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
     padding: 20px;
-    /* Nuovo sfondo con gradiente di tonalità calde (giallo-arancio-pesca) */
-    background: linear-gradient(135deg, #ffedd5 0%, #ffe0b3 50%, #f7c9b1 100%); /* Sfumatura delicata dal giallo al pesca */
+    background: linear-gradient(135deg, #ffedd5 0%, #ffe0b3 50%, #f7c9b1 100%); 
 }
 
-/* Contenitore principale per le 3 colonne */
 main {
     display: grid;
     grid-template-columns: 250px 1fr 250px;
@@ -22,25 +17,24 @@ main {
     max-width: 1200px;
     height: 90vh;
     padding: 20px;
-    /* Sfondo glassmorphism con tonalità più calda */
-    background: rgba(255, 255, 255, 0.15); /* Leggermente più visibile per riscaldare */
+    background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.4); /* Bordo leggermente più definito */
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15); /* Ombra leggermente più scura */
+    border: 1px solid rgba(255, 255, 255, 0.4); 
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15); 
 }
 
 
 h2 {
     text-align: center;
-    color: #4a2d00; /* Marrone scuro per i titoli per contrasto */
+    color: #4a2d00;
 }
 
 h3 {
     text-align: center;
     margin-bottom: 20px;
-    color: #4a2d00; /* Marrone scuro */
+    color: #4a2d00;
 }
 
 #left-column, #right-column {
@@ -49,10 +43,10 @@ h3 {
     justify-content: center;
     align-items: center;
     padding: 20px 15px;
-    background: rgba(255, 255, 255, 0.25); /* Sfondo più visibile delle colonne */
+    background: rgba(255, 255, 255, 0.25);
     border-radius: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.3); /* Bordo più definito */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombra leggermente più scura */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
 }
@@ -73,7 +67,7 @@ h3 {
 
 #grid-container {
     display: grid;
-    border: 2px solid rgba(139, 69, 19, 0.5); /* Bordo griglia marrone/arancio */
+    border: 2px solid rgba(139, 69, 19, 0.5);
     margin: 20px 0;
     border-radius: 8px;
     overflow: hidden;
@@ -82,7 +76,7 @@ h3 {
 .cell {
     width: 40px;
     height: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.5); /* Bordi delle celle leggermente più visibili */
+    border: 1px solid rgba(255, 255, 255, 0.5);
     box-sizing: border-box;
     transition: background-color 0.5s ease;
 }
@@ -99,15 +93,15 @@ h3 {
     cursor: pointer;
     border: none;
     border-radius: 6px;
-    background-color: #ff8c00; /* Arancione scuro brillante per "Start" */
+    background-color: #ff8c00;
     color: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
 #simulate-btn.simulating {
-    background-color: #ffd700; /* Giallo oro per "Stop" */
-    color: #4a2d00; /* Testo marrone scuro su giallo */
+    background-color: #ffd700; 
+    color: #4a2d00;
 }
 
 #simulate-btn:hover {
@@ -126,7 +120,7 @@ h3 {
     margin-bottom: 10px;
     padding: 10px 15px;
     font-size: 15px;
-    background-color: #ffa500; /* Arancione per i pulsanti di generazione */
+    background-color: #ffa500; 
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -135,7 +129,7 @@ h3 {
 }
 
 .generate-btn:hover {
-    background-color: #ff8c00; /* Arancione più scuro al hover */
+    background-color: #ff8c00;
     transform: translateY(-1px);
 }
 .generate-btn:active {
@@ -158,7 +152,7 @@ h3 {
 .property-group label {
     margin-bottom: 8px;
     font-weight: bold;
-    color: #4a2d00; /* Marrone scuro per le label */
+    color: #4a2d00;
     text-align: center;
     text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
 }
@@ -167,7 +161,7 @@ h3 {
     width: 85%;
     -webkit-appearance: none;
     appearance: none;
-    background: rgba(255, 165, 0, 0.4); /* Sfondo slider arancione trasparente */
+    background: rgba(255, 165, 0, 0.4);
     outline: none;
     height: 8px;
     border-radius: 5px;
@@ -181,9 +175,9 @@ h3 {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #ff8c00; /* Arancione scuro per il thumb */
+    background: #ff8c00;
     cursor: pointer;
-    border: 1px solid rgba(255, 255, 255, 0.6); /* Bordo bianco per il thumb */
+    border: 1px solid rgba(255, 255, 255, 0.6); 
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -191,7 +185,7 @@ h3 {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #ff8c00; /* Arancione scuro per il thumb */
+    background: #ff8c00;
     cursor: pointer;
     border: 1px solid rgba(255, 255, 255, 0.6);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
