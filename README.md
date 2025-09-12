@@ -603,3 +603,12 @@ $$
 $$
 
 Which represents the **heat diffusion differential equation** in $\mathbb{R}^3$ space for a generic object $\Omega$ with density function $\rho(x, y, z)$, specific heat $c$ and constant thermal conductivity $\lambda$. 
+
+
+
+# Web Demo
+The results of these studies are presented in a simple web application located in the web-demo folder. This interactive demo allows users to manipulate the heat distribution and its properties through various sliders and buttons.
+
+The geometry chosen for the simulation is a **planar surface**, which is ideal for its ease of setup and animation. As explained in the "Derivation of the Heat Diffusion Differential Equation" section, each point on the plane corresponds to a node in a graph. This approach transforms discrete properties like thermal resistance and mass into continuous ones: thermal conductivity ($$\lambda$$) and density ($$\rho$$). For simplicity, every node (or cell) in the simulation is assigned the same values for $$\lambda$$, specific heat capacity $$c$$, and $$\rho$$.
+
+The algorithm applied is a slight variation of the plain python one, adapted for javascript. The computation of the next steps is done instant after instant, so the evolution of the system is not predetermined. Moreover, since the numerical method applied is **Forward Euler**, the simulation might be **instable** for certain values of $$\lambda$$, $$c$$ and $$\rho$$.
